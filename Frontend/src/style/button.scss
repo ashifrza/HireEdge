@@ -1,20 +1,62 @@
-.button{
+$accent:     #ff2d78;
+$font-stack: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
 
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     border: none;
     outline: none;
-    padding-inline: 1.5rem;
-    padding-block: 0.75rem;
-    border-radius: 1rem;
+    padding: 0.7rem 1.4rem;
+    border-radius: 0.6rem;
     cursor: pointer;
+    font-family: $font-stack;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
 
-    transition: all 0.3s ease-in-out;
+    &.primary-button {
+        background: linear-gradient(135deg, $accent, darken($accent, 12%));
+        color: #fff;
+        box-shadow: 0 4px 14px rgba($accent, 0.28);
 
-    &.primary-button{
-        background-color: #e1034d;
-        color: white;
+        &:hover {
+            opacity: 0.9;
+            box-shadow: 0 6px 20px rgba($accent, 0.38);
+        }
     }
 
-    &:active{
-        transform: scale(0.9);
+    &.secondary-button {
+        background: transparent;
+        color: #e6edf3;
+        border: 1px solid #2a3348;
+
+        &:hover {
+            background: #1c2230;
+            border-color: #3a4358;
+        }
+    }
+
+    &.ghost-button {
+        background: transparent;
+        color: #7d8590;
+        border: 1px solid transparent;
+
+        &:hover {
+            color: #e6edf3;
+            background: #1c2230;
+        }
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
     }
 }
