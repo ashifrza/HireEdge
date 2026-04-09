@@ -1,308 +1,242 @@
 import React, { useState, useRef } from 'react'
-import "../style/home.scss"
+import '../style/home.scss'
 import { useInterview } from '../hooks/useInterview.js'
-import { useAuth } from '../../auth/hooks/useAuth'
 import { useNavigate } from 'react-router'
-import { motion } from 'framer-motion'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { FreeMode, Mousewheel } from 'swiper/modules'
-import 'swiper/css'
+import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
+import Navbar from '../../shared/Navbar'
 
-// ── Animation variants ─────────────────────────────────────────────────────────
-const stagger = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-}
 const fadeUp = {
-    hidden: { opacity: 0, y: 24 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } }
+    hidden: { opacity: 0, y: 20 },
+    show: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.4, delay: i * 0.08, ease: [0.25, 0.46, 0.45, 0.94] } })
 }
 
-// ── Loading Screen ─────────────────────────────────────────────────────────────
 const LoadingScreen = () => (
-    <main className='loading-screen'>
-        <div className='loading-ring'>
-            <svg viewBox="0 0 50 50" width="48" height="48">
-                <circle cx="25" cy="25" r="20" fill="none" stroke="rgba(255,45,120,0.15)" strokeWidth="4"/>
-                <circle cx="25" cy="25" r="20" fill="none" stroke="#ff2d78" strokeWidth="4"
-                    strokeDasharray="60 75" strokeLinecap="round" className='loading-ring__arc'/>
-            </svg>
-        </div>
-        <p className='loading-screen__text'>Crafting your personalized interview strategy<span className='loading-dots'><span>.</span><span>.</span><span>.</span></span></p>
-    </main>
+    <div className='he-loading'>
+        <div className='he-loading__ring'/>
+        <p className='he-loading__text'>AI is crafting your personalized strategy<span className='he-dots'><span/><span/><span/></span></p>
+    </div>
 )
 
-// ── Main Component ─────────────────────────────────────────────────────────────
 const Home = () => {
-    const { loading, generateReport, reports } = useInterview()
-    const { user, handleLogout } = useAuth()
-    const [jobDescription, setJobDescription] = useState("")
-    const [selfDescription, setSelfDescription] = useState("")
-    const [fileName, setFileName] = useState("")
+    const { loading, generateReport, reports, deleteReport } = useInterview()
+    const [jobDescription, setJobDescription] = useState('')
+    const [selfDescription, setSelfDescription] = useState('')
+    const [fileName, setFileName] = useState('')
     const [isDragging, setIsDragging] = useState(false)
+    const [deletingId, setDeletingId] = useState(null)
     const resumeInputRef = useRef()
     const navigate = useNavigate()
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0]
-        if (file) setFileName(file.name)
+        const f = e.target.files[0]
+        if (f) setFileName(f.name)
     }
 
     const handleDrop = (e) => {
-        e.preventDefault()
-        setIsDragging(false)
-        const file = e.dataTransfer.files[0]
-        if (file && (file.type === 'application/pdf' || file.name.endsWith('.docx'))) {
-            // Assign to the input via DataTransfer
-            const dt = new DataTransfer()
-            dt.items.add(file)
-            resumeInputRef.current.files = dt.files
-            setFileName(file.name)
-        } else {
-            toast.error('Please upload a PDF or DOCX file')
-        }
+        e.preventDefault(); setIsDragging(false)
+        const f = e.dataTransfer.files[0]
+        if (f && (f.type === 'application/pdf' || f.name.endsWith('.docx'))) {
+            const dt = new DataTransfer(); dt.items.add(f)
+            resumeInputRef.current.files = dt.files; setFileName(f.name)
+        } else { toast.error('Please upload PDF or DOCX') }
     }
 
-    const handleGenerateReport = async () => {
-        if (!jobDescription.trim()) {
-            toast.error('Please add a job description')
-            return
-        }
+    const handleGenerate = async () => {
+        if (!jobDescription.trim()) { toast.error('Job description is required'); return }
         if (!resumeInputRef.current?.files[0] && !selfDescription.trim()) {
-            toast.error('Upload your resume or add a self-description')
-            return
+            toast.error('Upload a resume or add a self-description'); return
         }
         const resumeFile = resumeInputRef.current?.files[0]
+        const t = toast.loading('AI is analyzing your profile...')
         try {
-            const loadingToast = toast.loading('Analyzing your profile with AI...')
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
-            toast.dismiss(loadingToast)
-            toast.success('Interview plan ready!')
+            toast.dismiss(t); toast.success('Interview strategy ready!')
             navigate(`/interview/${data._id}`)
-        } catch {
-            toast.error('Failed to generate report. Please try again.')
-        }
+        } catch { toast.dismiss(t); toast.error('Failed to generate. Please retry.') }
     }
 
-    const handleLogoutClick = async () => {
-        await handleLogout()
-        navigate('/login')
+    const handleDelete = async (e, id) => {
+        e.stopPropagation()
+        if (!window.confirm('Delete this report permanently?')) return
+        setDeletingId(id)
+        try { await deleteReport(id); toast.success('Report deleted') }
+        catch { toast.error('Failed to delete') }
+        finally { setDeletingId(null) }
     }
+
+    const scoreClass = (s) => s >= 80 ? 'high' : s >= 60 ? 'mid' : 'low'
 
     if (loading) return <LoadingScreen />
 
-    const scoreClass = (score) =>
-        score >= 80 ? 'score--high' : score >= 60 ? 'score--mid' : 'score--low'
-
     return (
-        <motion.div className='home-page' variants={stagger} initial='hidden' animate='show'>
+        <div className='he-home'>
+            <Navbar />
 
-            {/* ── Top Nav ── */}
-            <motion.nav className='home-nav' variants={fadeUp}>
-                <span className='home-nav__logo'>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                    </svg>
-                    HireEdge
-                </span>
-                <div className='home-nav__right'>
-                    {user && <span className='home-nav__user'>Hello, {user.username} 👋</span>}
-                    <button className='home-nav__logout' onClick={handleLogoutClick}>Logout</button>
-                </div>
-            </motion.nav>
+            {/* ── Hero ── */}
+            <section className='he-hero'>
+                <motion.div className='he-hero__inner' initial='hidden' animate='show' variants={{ show: { transition: { staggerChildren: 0.09 } } }}>
+                    <motion.div className='he-hero__pill' variants={fadeUp} custom={0}>
+                        <span className='he-live-dot'/>
+                        AI-Powered Interview Preparation
+                    </motion.div>
+                    <motion.h1 variants={fadeUp} custom={1}>
+                        Build Your <em>Winning</em><br/>Interview Strategy
+                    </motion.h1>
+                    <motion.p className='he-hero__sub' variants={fadeUp} custom={2}>
+                        Upload your resume, paste the job description — get a personalized prep plan, interview questions, and an ATS-ready resume in 30 seconds.
+                    </motion.p>
+                    <motion.div className='he-hero__chips' variants={fadeUp} custom={3}>
+                        {['Technical Questions', 'Behavioral Questions', 'Skill Gap Analysis', 'Prep Roadmap', 'AI Resume PDF'].map(c => (
+                            <span key={c} className='he-chip'>{c}</span>
+                        ))}
+                    </motion.div>
+                </motion.div>
+            </section>
 
-            {/* ── Page Header ── */}
-            <motion.header className='page-header' variants={fadeUp}>
-                <div className='page-header__eyebrow'>
-                    <span className='eyebrow-dot' />
-                    AI-Powered Interview Prep
-                </div>
-                <h1>Build Your <span className='highlight'>Winning Strategy</span></h1>
-                <p>Let our AI analyze the job requirements and your unique profile to craft a personalized interview roadmap.</p>
-            </motion.header>
+            {/* ── Input Section ── */}
+            <section className='he-form-section'>
+                <motion.div className='he-form-card' initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
 
-            {/* ── Main Card ── */}
-            <motion.div className='interview-card' variants={fadeUp}>
-                <div className='interview-card__body'>
-
-                    {/* Left Panel – Job Description */}
-                    <div className='panel panel--left'>
-                        <div className='panel__header'>
-                            <span className='panel__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                                </svg>
+                    {/* Left */}
+                    <div className='he-panel he-panel--left'>
+                        <div className='he-panel__head'>
+                            <span className='he-panel__icon'>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                             </span>
                             <h2>Target Job Description</h2>
-                            <span className='badge badge--required'>Required</span>
+                            <span className='he-badge he-badge--red'>Required</span>
                         </div>
                         <textarea
+                            className='he-textarea'
                             onChange={(e) => setJobDescription(e.target.value)}
-                            className='panel__textarea'
-                            placeholder={`Paste the full job description here...\ne.g. "Senior Frontend Engineer at Google — requires proficiency in React, TypeScript, and large-scale system design..."`}
+                            placeholder={'Paste the full job description here...\n\ne.g. "Senior Frontend Engineer at Google — requires React, TypeScript, system design..."'}
                             maxLength={5000}
                         />
-                        <div className='char-counter'>
-                            <span className={jobDescription.length > 4500 ? 'char-counter--warn' : ''}>
-                                {jobDescription.length}
-                            </span> / 5000
-                        </div>
+                        <span className='he-charcount' style={{ color: jobDescription.length > 4500 ? '#f59e0b' : undefined }}>
+                            {jobDescription.length} / 5000
+                        </span>
                     </div>
 
-                    <div className='panel-divider' />
+                    <div className='he-vdivider'/>
 
-                    {/* Right Panel – Profile */}
-                    <div className='panel panel--right'>
-                        <div className='panel__header'>
-                            <span className='panel__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="12" cy="7" r="4"/>
-                                </svg>
+                    {/* Right */}
+                    <div className='he-panel he-panel--right'>
+                        <div className='he-panel__head'>
+                            <span className='he-panel__icon'>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             </span>
                             <h2>Your Profile</h2>
                         </div>
 
-                        {/* Dropzone */}
-                        <div className='upload-section'>
-                            <label className='section-label'>
-                                Upload Resume
-                                <span className='badge badge--best'>Best Results</span>
-                            </label>
-                            <label
-                                className={`dropzone ${fileName ? 'dropzone--has-file' : ''} ${isDragging ? 'dropzone--dragging' : ''}`}
-                                htmlFor='resume'
-                                onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
-                                onDragLeave={() => setIsDragging(false)}
-                                onDrop={handleDrop}
-                            >
-                                {fileName ? (
-                                    <>
-                                        <span className='dropzone__file-badge'>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                                <polyline points="14 2 14 8 20 8"/>
-                                            </svg>
-                                        </span>
-                                        <p className='dropzone__title'>{fileName}</p>
-                                        <p className='dropzone__subtitle'>Click to replace</p>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className='dropzone__icon'>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                                <polyline points="16 16 12 12 8 16"/>
-                                                <line x1="12" y1="12" x2="12" y2="21"/>
-                                                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
-                                            </svg>
-                                        </span>
-                                        <p className='dropzone__title'>Click to upload or drag &amp; drop</p>
-                                        <p className='dropzone__subtitle'>PDF or DOCX · Max 3MB</p>
-                                    </>
-                                )}
-                                <input
-                                    ref={resumeInputRef}
-                                    hidden type='file' id='resume' name='resume'
-                                    accept='.pdf,.docx'
-                                    onChange={handleFileChange}
-                                />
-                            </label>
-                        </div>
+                        <label className='he-field-label'>Upload Resume <span className='he-badge he-badge--green'>Best Results</span></label>
+                        <label
+                            className={`he-dropzone${fileName ? ' he-dropzone--filled' : ''}${isDragging ? ' he-dropzone--drag' : ''}`}
+                            htmlFor='he-resume'
+                            onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+                            onDragLeave={() => setIsDragging(false)}
+                            onDrop={handleDrop}
+                        >
+                            {fileName ? (
+                                <>
+                                    <span className='he-dropzone__file-ico'>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    </span>
+                                    <p className='he-dropzone__name'>{fileName}</p>
+                                    <p className='he-dropzone__sub'>Click to replace</p>
+                                </>
+                            ) : (
+                                <>
+                                    <span className='he-dropzone__ico'>
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                                    </span>
+                                    <p className='he-dropzone__name'>Click to upload or drag & drop</p>
+                                    <p className='he-dropzone__sub'>PDF or DOCX · Max 3MB</p>
+                                </>
+                            )}
+                            <input ref={resumeInputRef} hidden type='file' id='he-resume' accept='.pdf,.docx' onChange={handleFileChange}/>
+                        </label>
 
-                        <div className='or-divider'><span>OR</span></div>
+                        <div className='he-or-div'><span>or</span></div>
 
-                        <div className='self-description'>
-                            <label className='section-label' htmlFor='selfDescription'>Quick Self-Description</label>
-                            <textarea
-                                onChange={(e) => setSelfDescription(e.target.value)}
-                                id='selfDescription' name='selfDescription'
-                                className='panel__textarea panel__textarea--short'
-                                placeholder="Briefly describe your experience, key skills, and years of experience if you don't have a resume handy..."
-                            />
-                        </div>
+                        <label className='he-field-label' htmlFor='he-self'>Quick Self-Description</label>
+                        <textarea
+                            className='he-textarea he-textarea--sm'
+                            id='he-self'
+                            onChange={(e) => setSelfDescription(e.target.value)}
+                            placeholder="Describe your experience, key skills, and years of experience..."
+                        />
 
-                        <div className='info-box'>
-                            <span className='info-box__icon'>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="12" y1="8" x2="12" y2="12" stroke="#0d1117" strokeWidth="2.5"/>
-                                    <circle cx="12" cy="16" r="1" fill="#0d1117"/>
-                                </svg>
-                            </span>
-                            <p>Either a <strong>Resume</strong> or a <strong>Self Description</strong> is required.</p>
+                        <div className='he-info-row'>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="#4a90e2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12" stroke="#fff" strokeWidth="2.5"/><circle cx="12" cy="16" r="1" fill="#fff"/></svg>
+                            Resume <strong>or</strong> Self-Description is required
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Card Footer */}
-                <div className='interview-card__footer'>
-                    <span className='footer-info'>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                        </svg>
+                <motion.div className='he-action-row' initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
+                    <span className='he-action-hint'>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="#ff2d78"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                         Gemini AI · Approx. 30 seconds
                     </span>
-                    <button onClick={handleGenerateReport} className='generate-btn'>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                        </svg>
+                    <button className='he-gen-btn' onClick={handleGenerate}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
                         Generate My Interview Strategy
                     </button>
-                </div>
-            </motion.div>
+                </motion.div>
+            </section>
 
-            {/* ── Recent Reports Carousel ── */}
+            {/* ── Reports Grid ── */}
             {reports.length > 0 && (
-                <motion.section className='recent-reports' variants={fadeUp}>
-                    <div className='recent-reports__header'>
-                        <h2>Recent Interview Plans</h2>
-                        <span className='recent-reports__count'>{reports.length} plan{reports.length > 1 ? 's' : ''}</span>
+                <section className='he-reports'>
+                    <div className='he-reports__hd'>
+                        <div>
+                            <h2>My Interview Plans</h2>
+                            <p>{reports.length} plan{reports.length !== 1 ? 's' : ''} · Click to view full strategy</p>
+                        </div>
                     </div>
-                    <Swiper
-                        modules={[FreeMode, Mousewheel]}
-                        spaceBetween={12}
-                        slidesPerView="auto"
-                        freeMode
-                        mousewheel={{ forceToAxis: true }}
-                        className='reports-swiper'
-                    >
-                        {reports.map(report => (
-                            <SwiperSlide key={report._id} className='report-slide'>
+
+                    <div className='he-grid'>
+                        <AnimatePresence>
+                            {reports.map((r, i) => (
                                 <motion.div
-                                    className='report-card'
-                                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
-                                    onClick={() => navigate(`/interview/${report._id}`)}
+                                    key={r._id}
+                                    className='he-rcard'
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                    transition={{ delay: i * 0.04 }}
+                                    whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                                    onClick={() => navigate(`/interview/${r._id}`)}
                                 >
-                                    <div className='report-card__top'>
-                                        <h3>{report.title || 'Untitled Position'}</h3>
-                                        <span className='report-card__arrow'>→</span>
+                                    <div className='he-rcard__top'>
+                                        <span className={`he-rcard__score he-rcard__score--${scoreClass(r.matchScore)}`}>
+                                            {r.matchScore}% match
+                                        </span>
+                                        <button className='he-rcard__del' onClick={(e) => handleDelete(e, r._id)} disabled={deletingId === r._id} title='Delete'>
+                                            {deletingId === r._id
+                                                ? <svg className='spin' width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                                                : <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                            }
+                                        </button>
                                     </div>
-                                    <p className='report-card__date'>
-                                        {new Date(report.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                    </p>
-                                    <div className={`report-card__score ${scoreClass(report.matchScore)}`}>
-                                        <span className='score-dot' />
-                                        {report.matchScore}% match
-                                    </div>
+                                    <h3 className='he-rcard__title'>{r.title || 'Untitled Position'}</h3>
+                                    <p className='he-rcard__date'>{new Date(r.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                                    <span className='he-rcard__cta'>View Strategy →</span>
                                 </motion.div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </motion.section>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </section>
             )}
 
-            {/* ── Footer ── */}
-            <motion.footer className='page-footer' variants={fadeUp}>
-                <a href='#'>Privacy Policy</a>
-                <span className='footer-sep'>·</span>
-                <a href='#'>Terms of Service</a>
-                <span className='footer-sep'>·</span>
+            <footer className='he-foot'>
+                <a href='#'>Privacy Policy</a><span>·</span>
+                <a href='#'>Terms of Service</a><span>·</span>
                 <a href='#'>Help Center</a>
-            </motion.footer>
-
-        </motion.div>
+            </footer>
+        </div>
     )
 }
 
