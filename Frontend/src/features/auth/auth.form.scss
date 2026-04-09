@@ -1,44 +1,215 @@
-main{
+$bg-page:    #0d1117;
+$bg-card:    #161b22;
+$bg-input:   #1e2535;
+$border:     #2a3348;
+$text:       #e6edf3;
+$text-muted: #7d8590;
+$accent:     #ff2d78;
+$font-stack: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
+
+// ── Auth Loading ──────────────────────────────────────────────────────────────
+.auth-loading {
     min-height: 100vh;
     width: 100%;
-
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background: $bg-page;
+}
 
+.auth-spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba($accent, 0.15);
+    border-top-color: $accent;
+    border-radius: 50%;
+    @keyframes spin { to { transform: rotate(360deg); } }
+    animation: spin 0.8s linear infinite;
+}
 
-    .form-container{
-        min-width: 350px;
+// ── Auth Page ─────────────────────────────────────────────────────────────────
+.auth-page {
+    min-height: 100vh;
+    width: 100%;
+    background-color: $bg-page;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+    font-family: $font-stack;
+    position: relative;
+    overflow: hidden;
+}
 
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
+// ── Animated Background ───────────────────────────────────────────────────────
+.auth-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
 
-    form{
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
+    &::before {
+        content: '';
+        position: absolute;
+        top: -20%; left: 50%;
+        transform: translateX(-50%);
+        width: 700px; height: 400px;
+        background: radial-gradient(ellipse, rgba($accent, 0.07) 0%, transparent 65%);
+        animation: drift 8s ease-in-out infinite alternate;
 
-    .input-group{
-        display: flex;
-        flex-direction: column;
-
-        gap: 0.5rem;
-
-
-        input{
-            border: none;
-            outline: none;
-            padding-inline: 1rem;
-            padding-block: 0.75rem;
-            border-radius: 0.75rem;
+        @keyframes drift {
+            from { transform: translateX(-50%) translateY(0); }
+            to   { transform: translateX(-50%) translateY(30px); }
         }
     }
 
-    a{
-        color: #e1034d;
-        text-decoration: none;
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -10%; right: 15%;
+        width: 400px; height: 300px;
+        background: radial-gradient(ellipse, rgba(100, 80, 255, 0.05) 0%, transparent 65%);
+        animation: drift 10s ease-in-out infinite alternate-reverse;
+    }
+}
+
+// ── Auth Card ─────────────────────────────────────────────────────────────────
+.auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 400px;
+    background-color: $bg-card;
+    border: 1px solid $border;
+    border-radius: 1.1rem;
+    padding: 2rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.03),
+        0 24px 60px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    &__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: $text;
+        letter-spacing: -0.01em;
+
+        svg { color: $accent; }
+    }
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: $text;
+            margin: 0;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+        }
+
+        p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: $text-muted;
+            line-height: 1.5;
+        }
+    }
+
+    &__footer {
+        margin: 0;
+        font-size: 0.83rem;
+        color: $text-muted;
+        text-align: center;
+
+        a {
+            color: $accent;
+            text-decoration: none;
+            font-weight: 600;
+            transition: opacity 0.15s;
+
+            &:hover { opacity: 0.8; }
+        }
+    }
+}
+
+// ── Auth Form ─────────────────────────────────────────────────────────────────
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+
+    label {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: $text;
+        letter-spacing: 0.01em;
+    }
+
+    input {
+        background-color: $bg-input;
+        border: 1px solid $border;
+        border-radius: 0.65rem;
+        padding: 0.75rem 1rem;
+        color: $text;
+        font-family: $font-stack;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &::placeholder { color: $text-muted; }
+
+        &:focus {
+            border-color: $accent;
+            box-shadow: 0 0 0 3px rgba($accent, 0.15);
+        }
+    }
+}
+
+// ── Auth Button ───────────────────────────────────────────────────────────────
+.auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.5rem;
+    margin-top: 0.25rem;
+    background: linear-gradient(135deg, $accent, darken($accent, 14%));
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 0.65rem;
+    cursor: pointer;
+    font-family: $font-stack;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 18px rgba($accent, 0.32);
+    transition: opacity 0.2s, box-shadow 0.2s;
+
+    &:hover:not(:disabled) {
+        opacity: 0.92;
+        box-shadow: 0 6px 24px rgba($accent, 0.42);
+    }
+
+    &:disabled { cursor: not-allowed; opacity: 0.7; }
+
+    &--loading {
+        background: $bg-input;
+        color: $text-muted;
+        box-shadow: none;
+        border: 1px solid $border;
     }
 }
