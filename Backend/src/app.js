@@ -16,7 +16,7 @@ app.use(cors({
 }))
 
 app.get("/", (req, res) => {
-    res.send("Backend is running")
+    res.status(200).send("Backend is running")
 })
 
 /* require all the routes here */
