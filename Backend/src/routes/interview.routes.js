@@ -20,7 +20,7 @@ interviewRouter.post("/", authMiddleware.authUser, upload.single("resume"), inte
 interviewRouter.get("/report/:interviewId", authMiddleware.authUser, interviewController.getInterviewReportByIdController)
 
 /**
- * @route DELETE /api/interview/report/:interviewId  ✅ NEW
+ * @route DELETE /api/interview/report/:interviewId  
  * @description delete interview report by interviewId
  * @access private
  */
