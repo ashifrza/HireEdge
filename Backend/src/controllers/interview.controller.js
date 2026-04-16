@@ -1,4 +1,5 @@
-const pdfParse = require("pdf-parse")
+const pdfParseModule = require("pdf-parse")
+const pdfParse = pdfParseModule.default || pdfParseModule
 const { generateInterviewReport, generateResumePdf } = require("../services/ai.service")
 const interviewReportModel = require("../models/interviewReport.model")
 
@@ -14,11 +15,12 @@ async function generateInterViewReportController(req, res) {
             return res.status(400).json({ message: "Job description is required." })
         }
 
-        // ✅ FIX: req.file is undefined when user only provides selfDescription (no file uploaded)
         let resumeText = ""
+
+        // ✅ FIX: Correct pdf-parse usage — it's a simple async function, not a class
         if (req.file && req.file.buffer) {
             try {
-                const parsed = await (new pdfParse.PDFParse(Uint8Array.from(req.file.buffer))).getText()
+                const parsed = await pdfParse(req.file.buffer)
                 resumeText = parsed.text || ""
             } catch (pdfErr) {
                 console.error("PDF parse error:", pdfErr.message)

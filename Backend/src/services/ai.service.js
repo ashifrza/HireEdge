@@ -8,6 +8,16 @@ const ai = new GoogleGenAI({
 })
 
 
+function toGeminiSchema(zodSchema) {
+    const schema = zodToJsonSchema(zodSchema, { target: "openApi3" })
+    delete schema.$schema
+    delete schema.definitions
+    delete schema.$ref
+    delete schema.additionalProperties
+    return schema
+}
+
+
 const interviewReportSchema = z.object({
     matchScore: z.number().describe("A score between 0 and 100 indicating how well the candidate's profile matches the job describe"),
     technicalQuestions: z.array(z.object({
@@ -22,7 +32,7 @@ const interviewReportSchema = z.object({
     })).describe("Behavioral questions that can be asked in the interview along with their intention and how to answer them"),
     skillGaps: z.array(z.object({
         skill: z.string().describe("The skill which the candidate is lacking"),
-        severity: z.enum([ "low", "medium", "high" ]).describe("The severity of this skill gap")
+        severity: z.enum(["low", "medium", "high"]).describe("The severity of this skill gap")
     })).describe("List of skill gaps in the candidate's profile along with their severity"),
     preparationPlan: z.array(z.object({
         day: z.number().describe("The day number in the preparation plan, starting from 1"),
@@ -31,6 +41,7 @@ const interviewReportSchema = z.object({
     })).describe("A day-wise preparation plan for the candidate"),
     title: z.string().describe("The title of the job for which the interview report is generated"),
 })
+
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
 
@@ -41,11 +52,11 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 `
 
     const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",   // ✅ FIXED: was "gemini-3-flash-preview" (doesn't exist)
+        model: "gemini-2.0-flash",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(interviewReportSchema),
+            responseSchema: toGeminiSchema(interviewReportSchema), 
         }
     })
 
@@ -53,10 +64,8 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
 }
 
 
-
 async function generatePdfFromHtml(htmlContent) {
     const browser = await puppeteer.launch({
-        // ✅ FIXED: Required for Railway/Linux servers
         headless: "new",
         args: [
             "--no-sandbox",
@@ -88,6 +97,7 @@ async function generatePdfFromHtml(htmlContent) {
     return pdfBuffer
 }
 
+
 async function generateResumePdf({ resume, selfDescription, jobDescription }) {
 
     const resumePdfSchema = z.object({
@@ -107,11 +117,11 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
                     `
 
     const response = await ai.models.generateContent({
-        model: "gemini-2.0-flash",  
+        model: "gemini-2.0-flash",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
-            responseSchema: zodToJsonSchema(resumePdfSchema),
+            responseSchema: toGeminiSchema(resumePdfSchema), 
         }
     })
 
