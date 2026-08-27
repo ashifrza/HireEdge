@@ -25,6 +25,7 @@ const Home = () => {
     const [selfDescription, setSelfDescription] = useState('')
     const [fileName, setFileName] = useState('')
     const [isDragging, setIsDragging] = useState(false)
+    const [isGenerating, setIsGenerating] = useState(false)
     const [deletingId, setDeletingId] = useState(null)
     const [progress, setProgress] = useState(null)
     const resumeInputRef = useRef()
@@ -55,11 +56,16 @@ const Home = () => {
         }
         const resumeFile = resumeInputRef.current?.files[0]
         const t = toast.loading('AI is analyzing your profile...')
+        setIsGenerating(true)
         try {
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
             toast.dismiss(t); toast.success('Interview strategy ready!')
             navigate(`/interview/${data._id}`)
-        } catch (error) { toast.dismiss(t); toast.error(error.message) }
+        } catch (error) {
+            toast.dismiss(t); toast.error(error.message)
+        } finally {
+            setIsGenerating(false)
+        }
     }
 
     const handleDelete = async (e, id) => {
@@ -190,11 +196,11 @@ const Home = () => {
                 <motion.div className='he-action-row' initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                     <span className='he-action-hint'>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="#ff2d78"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-                        AI analysis · Usually under 60 seconds
+                        {isGenerating ? 'Trying the fastest available AI provider…' : 'AI analysis · Usually under 30 seconds'}
                     </span>
-                    <button className='he-gen-btn' onClick={handleGenerate}>
+                    <button className='he-gen-btn' onClick={handleGenerate} disabled={isGenerating}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-                        Generate My Interview Strategy
+                        {isGenerating ? 'Generating Strategy…' : 'Generate My Interview Strategy'}
                     </button>
                 </motion.div>
             </section>

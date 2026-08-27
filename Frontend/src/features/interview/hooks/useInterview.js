@@ -16,7 +16,6 @@ export const useInterview = () => {
     const { loading, setLoading, report, setReport, reports, setReports } = context
 
     const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
-        setLoading(true)
         let response = null
         try {
             response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
@@ -24,8 +23,6 @@ export const useInterview = () => {
         } catch (error) {
             console.error(error)
             throw error
-        } finally {
-            setLoading(false)
         }
         return response.interviewReport
     }

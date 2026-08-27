@@ -432,6 +432,12 @@ $font:      'Plus Jakarta Sans', system-ui, sans-serif;
         box-shadow: 0 8px 30px rgba($accent, 0.48);
     }
     &:active { transform: scale(0.98); }
+    &:disabled {
+        cursor: wait;
+        opacity: 0.72;
+        transform: none;
+        box-shadow: 0 3px 14px rgba($accent, 0.22);
+    }
 }
 
 // ── Reports — Full Width Grid ─────────────────────────────────────────────────

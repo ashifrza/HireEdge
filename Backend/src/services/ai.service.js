@@ -1,10 +1,13 @@
 const OpenAI = require("openai");
 const { zodTextFormat } = require("openai/helpers/zod");
+const Groq = require("groq-sdk");
 const puppeteer = require("puppeteer");
 const { z } = require("zod");
 
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-nano";
+const GROQ_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 let openaiClient;
+let groqClient;
 
 function getOpenAIClient() {
   if (!process.env.OPENAI_API_KEY?.trim()) {
@@ -15,9 +18,25 @@ function getOpenAIClient() {
   }
 
   if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY.trim() });
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY.trim(),
+      maxRetries: 0,
+      timeout: 15000,
+    });
   }
   return openaiClient;
+}
+
+function getGroqClient() {
+  if (!process.env.GROQ_API_KEY?.trim()) return null;
+  if (!groqClient) {
+    groqClient = new Groq({
+      apiKey: process.env.GROQ_API_KEY.trim(),
+      maxRetries: 0,
+      timeout: 15000,
+    });
+  }
+  return groqClient;
 }
 
 const questionSchema = z.object({
@@ -68,7 +87,7 @@ const resumeHtmlSchema = z.object({
 });
 
 // ============================================================
-// HELPER — Call OpenAI Responses API with strict structured output
+// HELPER — Fast OpenAI request with automatic Groq fallback
 // ============================================================
 async function callOpenAIValidated({
   systemPrompt,
@@ -77,42 +96,94 @@ async function callOpenAIValidated({
   schema,
   schemaName,
 }) {
-  let lastError;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
-    try {
-      const response = await getOpenAIClient().responses.parse({
-        model: OPENAI_MODEL,
-        instructions: systemPrompt,
-        input: userPrompt,
-        text: {
-          format: zodTextFormat(schema, schemaName),
-        },
-        reasoning: { effort: "low" },
-        max_output_tokens: maxOutputTokens,
-        store: false,
-      });
+  const response = await getOpenAIClient().responses.parse({
+    model: OPENAI_MODEL,
+    instructions: systemPrompt,
+    input: userPrompt,
+    text: {
+      format: zodTextFormat(schema, schemaName),
+    },
+    reasoning: { effort: "none" },
+    max_output_tokens: maxOutputTokens,
+    store: false,
+  });
 
-      if (!response.output_parsed) {
-        throw new Error("OpenAI returned no structured output.");
-      }
-      return response.output_parsed;
+  if (!response.output_parsed) {
+    throw new Error("OpenAI returned no structured output.");
+  }
+  return response.output_parsed;
+}
+
+async function callGroqValidated({
+  systemPrompt,
+  userPrompt,
+  maxOutputTokens = 4000,
+  schema,
+  schemaName,
+}) {
+  const client = getGroqClient();
+  if (!client) throw new Error("GROQ_API_KEY is not configured.");
+
+  const format = zodTextFormat(schema, schemaName);
+  const response = await client.chat.completions.create({
+    model: GROQ_MODEL,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: format.name,
+        strict: true,
+        schema: format.schema,
+      },
+    },
+    reasoning_effort: "low",
+    max_completion_tokens: maxOutputTokens,
+  });
+
+  const content = response.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Groq returned an empty response.");
+  return schema.parse(JSON.parse(content));
+}
+
+async function callAIValidated(options) {
+  const failures = [];
+
+  if (process.env.OPENAI_API_KEY?.trim()) {
+    try {
+      return await callOpenAIValidated(options);
     } catch (error) {
-      lastError = error;
-      const retryable = !error.publicMessage && (
-        !error.status ||
-        error.status === 408 ||
-        error.status === 409 ||
-        error.status === 429 ||
-        error.status >= 500
-      );
-      if (attempt < 2 && retryable) {
-        await new Promise((resolve) => setTimeout(resolve, 700));
-        continue;
-      }
-      break;
+      failures.push({ provider: "OpenAI", error });
+      console.warn(`OpenAI request failed (${error.status || "unknown"}); trying fallback.`);
     }
   }
-  throw lastError;
+
+  if (process.env.GROQ_API_KEY?.trim()) {
+    try {
+      return await callGroqValidated(options);
+    } catch (error) {
+      failures.push({ provider: "Groq", error });
+    }
+  }
+
+  if (!failures.length) {
+    const error = new Error("No AI provider API key is configured.");
+    error.statusCode = 503;
+    error.publicMessage = "AI is not configured. Add OPENAI_API_KEY or GROQ_API_KEY to Backend/.env and restart.";
+    throw error;
+  }
+
+  const error = failures.at(-1).error;
+  const openAIQuota = failures.find(({ provider, error: providerError }) =>
+    provider === "OpenAI" && providerError.status === 429
+  );
+  error.statusCode = openAIQuota && failures.length === 1 ? 429 : 502;
+  error.publicMessage = openAIQuota && failures.length === 1
+    ? "OpenAI credits or usage limit are exhausted. Add API credits or configure a Groq fallback key."
+    : "The AI providers are temporarily unavailable. Check provider keys, credits, and backend logs.";
+  throw error;
 }
 
 function normalizeAIError(error, fallbackMessage) {
@@ -253,10 +324,10 @@ Return ONLY this exact JSON structure with no extra text:
 }`;
 
   try {
-    const result = await callOpenAIValidated({
+    const result = await callAIValidated({
       systemPrompt,
       userPrompt,
-      maxOutputTokens: 5000,
+      maxOutputTokens: 3800,
       schema: interviewReportSchema,
       schemaName: "interview_report",
     });
@@ -309,10 +380,10 @@ Return exactly:
 }`;
 
   try {
-    return await callOpenAIValidated({
+    return await callAIValidated({
       systemPrompt,
       userPrompt,
-      maxOutputTokens: 2200,
+      maxOutputTokens: 1600,
       schema: answerEvaluationSchema,
       schemaName: "answer_evaluation",
     });
@@ -399,10 +470,10 @@ CRITICAL ATS RULES:
 OUTPUT: Return only the inner body content as the "html" value. Do NOT wrap with DOCTYPE, html, head, or body tags.`;
 
   try {
-    const jsonContent = await callOpenAIValidated({
+    const jsonContent = await callAIValidated({
       systemPrompt,
       userPrompt,
-      maxOutputTokens: 6000,
+      maxOutputTokens: 5000,
       schema: resumeHtmlSchema,
       schemaName: "ats_resume_html",
     });

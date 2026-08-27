@@ -48,7 +48,7 @@ Whether you're a fresher entering the job market or an experienced professional 
 | Frontend | React.js, Vite, SCSS |
 | Backend | Node.js, Express.js |
 | Database | MongoDB (Mongoose) |
-| AI Engine | OpenAI Responses API · Structured Outputs |
+| AI Engine | OpenAI Responses API · Groq automatic fallback · Structured Outputs |
 | Auth | JWT (JSON Web Tokens) |
 | Styling | SCSS Modules |
 
@@ -118,7 +118,9 @@ NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/hireedge
 JWT_SECRET=your_super_secret_key_here
 OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-5.4-mini
+OPENAI_MODEL=gpt-5.4-nano
+GROQ_API_KEY=your_groq_fallback_key_here
+GROQ_MODEL=openai/gpt-oss-20b
 FRONTEND_URL=http://localhost:5173
 ```
 

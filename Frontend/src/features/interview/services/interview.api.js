@@ -12,6 +12,7 @@ export const generateInterviewReport = async ({
 
   const response = await api.post("/api/interview/", formData, {
     headers: { "Content-Type": "multipart/form-data" },
+    timeout: 35000,
   });
   return response.data;
 };
