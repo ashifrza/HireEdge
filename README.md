@@ -13,7 +13,7 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat-square&logo=mongodb&logoColor=white)](https://mongodb.com/)
 [![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Google Gemini](https://img.shields.io/badge/Gemini%20AI-4285F4?style=flat-square&logo=google&logoColor=white)](https://ai.google.dev/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-Responses%20API-412991?style=flat-square&logo=openai&logoColor=white)](https://developers.openai.com/api/)
 
 </div>
 
@@ -29,7 +29,10 @@ Whether you're a fresher entering the job market or an experienced professional 
 
 ## ✨ Features
 
-- 🤖 **AI Mock Interviews** — Powered by Google Gemini AI for realistic interview simulations
+- 🎙️ **AI Mock Interviews** — Typed or voice answers with role-specific feedback
+- 🧭 **Evidence-Based Role Fit** — Match breakdown, strengths, missing keywords, and skill gaps
+- 📈 **Persistent Progress** — Saved review state, completed roadmap tasks, sessions, and coaching scores
+- 🧠 **Answer Coaching** — Relevance, accuracy, structure, evidence, and communication rubrics
 - 📊 **Performance Reports** — Detailed feedback and scoring after every session
 - 🔐 **Secure Authentication** — JWT-based login/register with token blacklisting
 - 👤 **User Dashboard** — Track your interview history and progress
@@ -45,7 +48,7 @@ Whether you're a fresher entering the job market or an experienced professional 
 | Frontend | React.js, Vite, SCSS |
 | Backend | Node.js, Express.js |
 | Database | MongoDB (Mongoose) |
-| AI Engine | Google Gemini API |
+| AI Engine | OpenAI Responses API · Structured Outputs |
 | Auth | JWT (JSON Web Tokens) |
 | Styling | SCSS Modules |
 
@@ -71,7 +74,7 @@ HireEdge/
     │   ├── controllers/       # auth & interview controllers
     │   ├── routes/            # API routes
     │   ├── models/            # MongoDB schemas
-    │   ├── services/          # AI service (Gemini)
+    │   ├── services/          # OpenAI report, coaching, and ATS resume service
     │   └── config/            # DB config
     ├── server.js
     ├── .env
@@ -87,7 +90,7 @@ HireEdge/
 Make sure you have installed:
 - [Node.js](https://nodejs.org/) (v18 or above)
 - [MongoDB](https://www.mongodb.com/try/download/community) (local) or a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) account
-- A [Google Gemini API Key](https://ai.google.dev/)
+- An [OpenAI API key](https://platform.openai.com/api-keys) with API billing enabled
 
 ---
 
@@ -111,10 +114,15 @@ Create a `.env` file inside `Backend/`:
 
 ```env
 PORT=3000
+NODE_ENV=development
 MONGO_URI=mongodb://localhost:27017/hireedge
 JWT_SECRET=your_super_secret_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-5.4-mini
+FRONTEND_URL=http://localhost:5173
 ```
+
+Keep `OPENAI_API_KEY` in `Backend/.env` only. Never add it to the frontend, prefix it with `VITE_`, commit it to Git, or paste it into a public issue.
 
 Start the backend server:
 
@@ -174,6 +182,11 @@ Visit: **http://localhost:5173** 🎉
 | GET | `/report/:id` | Get interview report |
 | GET | `/reports` | Get all user reports |
 | DELETE | `/report/:id` | Delete a specific report |
+| PATCH | `/report/:id/progress` | Save reviewed questions and roadmap tasks |
+| POST | `/report/:id/sessions` | Start a mock interview session |
+| POST | `/sessions/:id/answers` | Submit and score a practice answer |
+| POST | `/sessions/:id/complete` | Complete a practice session |
+| GET | `/progress` | Get user progress and skill analytics |
 
 ---
 
@@ -182,9 +195,9 @@ Visit: **http://localhost:5173** 🎉
 - [ ] 🤖 AI Chatbot for career guidance
 - [ ] 💼 Job finder & recommendations
 - [ ] 📝 Resume analyzer
-- [ ] 🏆 Leaderboard & community challenges
-- [ ] 🎯 Role-specific interview tracks (Frontend, Backend, Data Science, etc.)
-- [ ] 📧 Email notifications & reminders
+- [ ] Editable resume workspace with before/after comparison
+- [ ] Job application tracker and reminders
+- [ ] Privacy-controlled shareable reports
 
 ---
 

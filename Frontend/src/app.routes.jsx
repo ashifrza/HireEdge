@@ -1,9 +1,13 @@
 import { createBrowserRouter } from "react-router";
-import Login from "./features/auth/pages/Login";
-import Register from "./features/auth/pages/Register";
+import { lazy } from "react";
 import Protected from "./features/auth/components/Protected";
-import Home from "./features/interview/pages/Home";
-import Interview from "./features/interview/pages/Interview";
+
+const Login = lazy(() => import("./features/auth/pages/Login"));
+const Register = lazy(() => import("./features/auth/pages/Register"));
+const Home = lazy(() => import("./features/interview/pages/Home"));
+const Interview = lazy(() => import("./features/interview/pages/Interview"));
+const Practice = lazy(() => import("./features/interview/pages/Practice"));
+const Landing = lazy(() => import("./features/marketing/Landing"));
 
 
 export const router = createBrowserRouter([
@@ -17,10 +21,18 @@ export const router = createBrowserRouter([
     },
     {
         path: "/",
+        element: <Landing />
+    },
+    {
+        path: "/dashboard",
         element: <Protected><Home /></Protected>
     },
     {
         path:"/interview/:interviewId",
         element: <Protected><Interview /></Protected>
+    },
+    {
+        path:"/interview/:interviewId/practice",
+        element: <Protected><Practice /></Protected>
     }
 ])

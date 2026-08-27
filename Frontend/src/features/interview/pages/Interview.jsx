@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import '../style/interview.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate, useParams } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import Navbar from '../../shared/Navbar'
+import { saveReportProgress } from '../services/interview.api.js'
 
 // ── Nav Config ────────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -190,7 +191,7 @@ const QuestionCard = ({ item, index, reviewed, onToggleReview }) => {
 }
 
 // ── Road Map Day ──────────────────────────────────────────────────────────────
-const RoadMapDay = ({ day, index }) => (
+const RoadMapDay = ({ day, index, completedTasks, onToggleTask }) => (
     <motion.div className='iv-day'
         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.05, duration: 0.3 }}
@@ -200,7 +201,14 @@ const RoadMapDay = ({ day, index }) => (
             <h3 className='iv-day__focus'>{day.focus}</h3>
         </div>
         <ul className='iv-day__tasks'>
-            {day.tasks.map((t, i) => <li key={i}><span className='iv-day__dot'/>{t}</li>)}
+            {day.tasks.map((t, i) => {
+                const key = `${day.day}:${i}`
+                return <li key={key} className={completedTasks.includes(key) ? 'iv-day__task--done' : ''}>
+                    <button type='button' onClick={() => onToggleTask(key)} aria-label={`${completedTasks.includes(key) ? 'Mark incomplete' : 'Mark complete'}: ${t}`}>
+                        <span className='iv-day__dot'/>{t}
+                    </button>
+                </li>
+            })}
         </ul>
     </motion.div>
 )
@@ -230,25 +238,6 @@ const DownloadBtn = ({ interviewId, getResumePdf }) => {
     )
 }
 
-// ── Share Report Button ───────────────────────────────────────────────────────
-const ShareBtn = () => {
-    const onClick = async () => {
-        const url = window.location.href
-        try {
-            await navigator.clipboard.writeText(url)
-            toast.success('Report link copied to clipboard!')
-        } catch {
-            toast.error('Could not copy link')
-        }
-    }
-    return (
-        <button className='iv-share-btn' onClick={onClick} title='Copy share link'>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            Share
-        </button>
-    )
-}
-
 // ── Loading ───────────────────────────────────────────────────────────────────
 const LoadingScreen = () => (
     <div className='he-loading'>
@@ -269,15 +258,45 @@ const Interview = () => {
     const [activeNav, setActiveNav] = useState('technical')
     const { report, loading, getResumePdf } = useInterview()
     const { interviewId } = useParams()
+    const navigate = useNavigate()
 
     // Progress Tracker
     const [reviewed, setReviewed] = useState({ technical: {}, behavioral: {} })
+    const [completedTasks, setCompletedTasks] = useState([])
+    const [progressReady, setProgressReady] = useState(false)
+
+    useEffect(() => {
+        if (!report) return
+        const next = { technical: {}, behavioral: {} }
+        for (const key of report.reviewedQuestionKeys || []) {
+            const [section, index] = key.split(':')
+            if (next[section]) next[section][index] = true
+        }
+        const timer = setTimeout(() => {
+            setReviewed(next)
+            setCompletedTasks(report.completedPlanTasks || [])
+            setProgressReady(true)
+        }, 0)
+        return () => clearTimeout(timer)
+    }, [report])
+
+    useEffect(() => {
+        if (!progressReady) return undefined
+        const timer = setTimeout(() => {
+            const reviewedQuestionKeys = Object.entries(reviewed).flatMap(([section, values]) =>
+                Object.entries(values).filter(([, value]) => value).map(([index]) => `${section}:${index}`)
+            )
+            saveReportProgress(interviewId, { reviewedQuestionKeys, completedPlanTasks: completedTasks }).catch(() => {})
+        }, 500)
+        return () => clearTimeout(timer)
+    }, [completedTasks, interviewId, progressReady, reviewed])
     const toggleReview = (section, index) => {
         setReviewed(prev => ({
             ...prev,
             [section]: { ...prev[section], [index]: !prev[section][index] }
         }))
     }
+    const toggleTask = (key) => setCompletedTasks((items) => items.includes(key) ? items.filter((item) => item !== key) : [...items, key])
 
     if (loading || !report) return <LoadingScreen />
 
@@ -292,7 +311,7 @@ const Interview = () => {
 
     return (
         <div className='iv-page'>
-            <Navbar showBack backTo='/' title={report.title} />
+            <Navbar showBack backTo='/dashboard' title={report.title} />
 
             {/* ── Overall Progress Bar ── */}
             <div className='iv-progress-bar'>
@@ -340,8 +359,8 @@ const Interview = () => {
                     </div>
 
                     <div className='iv-sidebar__actions'>
+                        <button className='iv-practice-btn' onClick={() => navigate(`/interview/${interviewId}/practice`)}>Start mock interview</button>
                         <DownloadBtn interviewId={interviewId} getResumePdf={getResumePdf} />
-                        <ShareBtn />
                     </div>
                 </aside>
 
@@ -399,7 +418,7 @@ const Interview = () => {
                                 </div>
                                 <div className='iv-roadmap'>
                                     {report.preparationPlan.map((day, i) => (
-                                        <RoadMapDay key={day.day} day={day} index={i}/>
+                                        <RoadMapDay key={day.day} day={day} index={i} completedTasks={completedTasks} onToggleTask={toggleTask}/>
                                     ))}
                                 </div>
                             </motion.section>
@@ -411,6 +430,7 @@ const Interview = () => {
                 <aside className='iv-sidebar iv-sidebar--right'>
                     <div className='iv-sidebar__inner'>
                         <ScoreRing score={report.matchScore}/>
+                        {report.matchBreakdown?.summary && <p className='iv-match-summary'>{report.matchBreakdown.summary}</p>}
                         <div className='iv-sidebar__divider'/>
                         <InterviewTimer/>
                         <div className='iv-sidebar__divider'/>

@@ -1,10 +1,11 @@
-import React, { useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import '../style/home.scss'
 import { useInterview } from '../hooks/useInterview.js'
 import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import Navbar from '../../shared/Navbar'
+import { getInterviewProgress } from '../services/interview.api.js'
 
 const fadeUp = {
     hidden: { opacity: 0, y: 20 },
@@ -25,8 +26,13 @@ const Home = () => {
     const [fileName, setFileName] = useState('')
     const [isDragging, setIsDragging] = useState(false)
     const [deletingId, setDeletingId] = useState(null)
+    const [progress, setProgress] = useState(null)
     const resumeInputRef = useRef()
     const navigate = useNavigate()
+
+    useEffect(() => {
+        getInterviewProgress().then((data) => setProgress(data.progress)).catch(() => setProgress(null))
+    }, [])
 
     const handleFileChange = (e) => {
         const f = e.target.files[0]
@@ -36,10 +42,10 @@ const Home = () => {
     const handleDrop = (e) => {
         e.preventDefault(); setIsDragging(false)
         const f = e.dataTransfer.files[0]
-        if (f && (f.type === 'application/pdf' || f.name.endsWith('.docx'))) {
+        if (f && (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'))) {
             const dt = new DataTransfer(); dt.items.add(f)
             resumeInputRef.current.files = dt.files; setFileName(f.name)
-        } else { toast.error('Please upload PDF or DOCX') }
+        } else { toast.error('Please upload a PDF resume') }
     }
 
     const handleGenerate = async () => {
@@ -53,7 +59,7 @@ const Home = () => {
             const data = await generateReport({ jobDescription, selfDescription, resumeFile })
             toast.dismiss(t); toast.success('Interview strategy ready!')
             navigate(`/interview/${data._id}`)
-        } catch { toast.dismiss(t); toast.error('Failed to generate. Please retry.') }
+        } catch (error) { toast.dismiss(t); toast.error(error.message) }
     }
 
     const handleDelete = async (e, id) => {
@@ -92,6 +98,13 @@ const Home = () => {
                         ))}
                     </motion.div>
                 </motion.div>
+            </section>
+
+            <section className='he-overview' aria-label='Practice progress'>
+                <div><span>Plans created</span><strong>{reports.length}</strong><small>Targeted roles</small></div>
+                <div><span>Practice sessions</span><strong>{progress?.totalSessions || 0}</strong><small>{progress?.completedSessions || 0} completed</small></div>
+                <div><span>Answers practiced</span><strong>{progress?.answersPracticed || 0}</strong><small>Across all roles</small></div>
+                <div><span>Average score</span><strong>{progress?.averageScore || '—'}{progress?.averageScore ? '%' : ''}</strong><small>AI coaching rubric</small></div>
             </section>
 
             {/* ── Input Section ── */}
@@ -151,10 +164,10 @@ const Home = () => {
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
                                     </span>
                                     <p className='he-dropzone__name'>Click to upload or drag & drop</p>
-                                    <p className='he-dropzone__sub'>PDF or DOCX · Max 3MB</p>
+                                    <p className='he-dropzone__sub'>PDF · Max 3MB</p>
                                 </>
                             )}
-                            <input ref={resumeInputRef} hidden type='file' id='he-resume' accept='.pdf,.docx' onChange={handleFileChange}/>
+                            <input ref={resumeInputRef} hidden type='file' id='he-resume' accept='.pdf,application/pdf' onChange={handleFileChange}/>
                         </label>
 
                         <div className='he-or-div'><span>or</span></div>
@@ -177,7 +190,7 @@ const Home = () => {
                 <motion.div className='he-action-row' initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
                     <span className='he-action-hint'>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="#ff2d78"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
-                        Gemini AI · Approx. 30 seconds
+                        AI analysis · Usually under 60 seconds
                     </span>
                     <button className='he-gen-btn' onClick={handleGenerate}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
@@ -232,9 +245,7 @@ const Home = () => {
             )}
 
             <footer className='he-foot'>
-                <a href='#'>Privacy Policy</a><span>·</span>
-                <a href='#'>Terms of Service</a><span>·</span>
-                <a href='#'>Help Center</a>
+                <span>Your interview data is private to your account</span>
             </footer>
         </div>
     )

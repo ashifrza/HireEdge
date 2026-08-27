@@ -11,13 +11,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     unique: [true, "Account already exists with this email address"],
     required: true,
+    lowercase: true,
+    trim: true,
   },
 
   password: {
     type: String,
     required: true,
   },
-});
+}, { timestamps: true });
 
 const userModel = mongoose.model("users", userSchema);
 

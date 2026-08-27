@@ -1,15 +1,21 @@
 const { Router } = require('express')
 const authController = require("../controllers/auth.controller")
 const authMiddleware = require("../middlewares/auth.middleware")
+const { createRateLimit } = require("../middlewares/rateLimit.middleware")
 
 const authRouter = Router()
+const authRateLimit = createRateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 30,
+    message: "Too many authentication attempts. Please try again later.",
+})
 
 /**
  * @route POST /api/auth/register
  * @description Register a new user
  * @access Public
  */
-authRouter.post("/register", authController.registerUserController)
+authRouter.post("/register", authRateLimit, authController.registerUserController)
 
 
 /**
@@ -17,7 +23,7 @@ authRouter.post("/register", authController.registerUserController)
  * @description login user with email and password
  * @access Public
  */
-authRouter.post("/login", authController.loginUserController)
+authRouter.post("/login", authRateLimit, authController.loginUserController)
 
 
 /**
@@ -25,7 +31,7 @@ authRouter.post("/login", authController.loginUserController)
  * @description clear token from user cookie and add the token in blacklist
  * @access public
  */
-authRouter.get("/logout", authController.logoutUserController)
+authRouter.post("/logout", authController.logoutUserController)
 
 
 /**

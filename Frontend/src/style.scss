@@ -34,3 +34,12 @@ body,
 .highlight {
     color: #ff2d78;
 }
+
+.app-error {
+    min-height: 100vh; padding: 2rem; display: grid; place-content: center; text-align: center;
+    background: #0d1117; color: #e6edf3;
+    p { color: #ff2d78; font-size: .68rem; letter-spacing: .16em; font-weight: 800; }
+    h1 { margin: .8rem 0; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.05em; }
+    span { color: #7d8590; }
+    button { margin: 1.5rem auto 0; padding: .8rem 1rem; border: 0; border-radius: 8px; background: #ff2d78; color: white; font-weight: 800; cursor: pointer; }
+}

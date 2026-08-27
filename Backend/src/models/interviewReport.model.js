@@ -91,6 +91,12 @@ const interviewReportSchema = new mongoose.Schema(
       min: 0,
       max: 100,
     },
+    matchBreakdown: {
+      matchedSkills: [{ type: String }],
+      missingKeywords: [{ type: String }],
+      strengths: [{ type: String }],
+      summary: { type: String, default: "" },
+    },
     technicalQuestions: [technicalQuestionSchema],
     behavioralQuestions: [behavioralQuestionSchema],
     skillGaps: [skillGapSchema],
@@ -103,6 +109,8 @@ const interviewReportSchema = new mongoose.Schema(
       type: String,
       required: [true, "Job title is required"],
     },
+    reviewedQuestionKeys: [{ type: String }],
+    completedPlanTasks: [{ type: String }],
   },
   {
     timestamps: true,

@@ -3,16 +3,19 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const app = express();
+app.set("trust proxy", 1);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // ✅ ADDED: support for form-urlencoded bodies
+app.disable("x-powered-by");
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
 
 // ✅ FIX: Dynamic CORS — works correctly for both local dev and production
 const allowedOrigins = [
   "http://localhost:5173",
   "https://hire-edge-mocha.vercel.app",
-];
+  process.env.FRONTEND_URL,
+].filter(Boolean);
 
 app.use(
   cors({
@@ -29,7 +32,11 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  res.status(200).send("Backend is running");
+  res.status(200).json({ status: "ok", service: "HireEdge API" });
+});
+
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
 /* require all the routes here */
@@ -42,8 +49,11 @@ app.use("/api/interview", interviewRouter);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err.message);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({ message: "Resume must be smaller than 3MB." });
+  }
+  res.status(err.statusCode || err.status || 500).json({
+    message: err.publicMessage || "Internal server error.",
   });
 });
 

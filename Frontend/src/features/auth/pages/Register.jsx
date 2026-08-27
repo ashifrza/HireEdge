@@ -16,14 +16,14 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!username || !email || !password) { toast.error('Please fill in all fields'); return }
-        if (password.length < 6) { toast.error('Password must be at least 6 characters'); return }
+        if (password.length < 8) { toast.error('Password must be at least 8 characters'); return }
         setSubmitting(true)
         try {
             await handleRegister({ username, email, password })
             toast.success('Account created! Welcome to HireEdge 🎉')
-            navigate('/')
-        } catch {
-            toast.error('Registration failed. Username or email may already be taken.')
+            navigate('/dashboard')
+        } catch (error) {
+            toast.error(error.message)
         } finally {
             setSubmitting(false)
         }

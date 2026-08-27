@@ -7,7 +7,9 @@ const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
 };
+const sessionCookieOptions = { ...cookieOptions, maxAge: 24 * 60 * 60 * 1000 };
 
 /**
  * @name registerUserController
@@ -16,12 +18,23 @@ const cookieOptions = {
  */
 async function registerUserController(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const username = req.body.username?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({
         message: "Please provide username, email and password",
       });
+    }
+    if (username.length < 2 || username.length > 40) {
+      return res.status(400).json({ message: "Username must be 2-40 characters." });
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ message: "Enter a valid email address." });
+    }
+    if (password.length < 8 || password.length > 128) {
+      return res.status(400).json({ message: "Password must be 8-128 characters." });
     }
 
     const isUserAlreadyExists = await userModel.findOne({
@@ -48,7 +61,7 @@ async function registerUserController(req, res) {
       { expiresIn: "1d" },
     );
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, sessionCookieOptions);
 
     res.status(201).json({
       message: "User registered successfully",
@@ -71,7 +84,8 @@ async function registerUserController(req, res) {
  */
 async function loginUserController(req, res) {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim().toLowerCase();
+    const { password } = req.body;
 
     if (!email || !password) {
       return res
@@ -101,7 +115,7 @@ async function loginUserController(req, res) {
       { expiresIn: "1d" },
     );
 
-    res.cookie("token", token, cookieOptions);
+    res.cookie("token", token, sessionCookieOptions);
 
     res.status(200).json({
       message: "User loggedIn successfully.",

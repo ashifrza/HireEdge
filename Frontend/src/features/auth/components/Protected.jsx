@@ -7,11 +7,11 @@ const Protected = ({children}) => {
 
 
     if(loading){
-        return (<main><h1>Loading...</h1></main>)
+        return (<main className='auth-loading' aria-label='Loading HireEdge'><div className='auth-spinner'/></main>)
     }
 
     if(!user){
-        return <Navigate to={'/login'} />
+        return <Navigate to={'/login'} replace />
     }
     
     return children

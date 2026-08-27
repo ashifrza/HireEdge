@@ -13,8 +13,11 @@ async function generateInterViewReportController(req, res) {
   try {
     const { selfDescription = "", jobDescription } = req.body;
 
-    if (!jobDescription) {
+    if (!jobDescription?.trim()) {
       return res.status(400).json({ message: "Job description is required." });
+    }
+    if (jobDescription.length > 12000 || selfDescription.length > 8000) {
+      return res.status(400).json({ message: "The supplied text is too long." });
     }
 
     let resumeText = "";
@@ -56,8 +59,8 @@ async function generateInterViewReportController(req, res) {
   } catch (err) {
     console.error("generateInterViewReportController error:", err.message);
     res
-      .status(500)
-      .json({ message: "Failed to generate interview report. Please retry." });
+      .status(err.statusCode || 500)
+      .json({ message: err.publicMessage || "Failed to generate interview report. Please retry." });
   }
 }
 
@@ -136,8 +139,10 @@ async function deleteInterviewReportController(req, res) {
 async function generateResumePdfController(req, res) {
   try {
     const { interviewReportId } = req.params;
-    const interviewReport =
-      await interviewReportModel.findById(interviewReportId);
+    const interviewReport = await interviewReportModel.findOne({
+      _id: interviewReportId,
+      user: req.user.id,
+    });
 
     if (!interviewReport) {
       return res.status(404).json({ message: "Interview report not found." });
@@ -159,8 +164,37 @@ async function generateResumePdfController(req, res) {
     res.end(pdfBuffer);
   } catch (err) {
     console.error("generateResumePdfController error:", err.message);
-    res.status(500).json({ message: "Failed to generate resume PDF." });
+    res
+      .status(err.statusCode || 500)
+      .json({ message: err.publicMessage || "Failed to generate resume PDF." });
   }
+}
+
+async function updateReportProgressController(req, res) {
+  const { reviewedQuestionKeys, completedPlanTasks } = req.body;
+  const update = {};
+
+  if (reviewedQuestionKeys !== undefined) {
+    if (!Array.isArray(reviewedQuestionKeys) || reviewedQuestionKeys.length > 100) {
+      return res.status(400).json({ message: "Invalid reviewed questions." });
+    }
+    update.reviewedQuestionKeys = reviewedQuestionKeys.map(String);
+  }
+  if (completedPlanTasks !== undefined) {
+    if (!Array.isArray(completedPlanTasks) || completedPlanTasks.length > 100) {
+      return res.status(400).json({ message: "Invalid plan progress." });
+    }
+    update.completedPlanTasks = completedPlanTasks.map(String);
+  }
+
+  const interviewReport = await interviewReportModel.findOneAndUpdate(
+    { _id: req.params.interviewId, user: req.user.id },
+    { $set: update },
+    { new: true },
+  );
+  if (!interviewReport) return res.status(404).json({ message: "Interview report not found." });
+
+  res.json({ message: "Progress saved.", interviewReport });
 }
 
 module.exports = {
@@ -169,4 +203,5 @@ module.exports = {
   getAllInterviewReportsController,
   deleteInterviewReportController,
   generateResumePdfController,
+  updateReportProgressController,
 };

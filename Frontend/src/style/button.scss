@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $accent:     #ff2d78;
 $font-stack: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
 
@@ -18,7 +20,7 @@ $font-stack: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
     transition: all 0.2s ease;
 
     &.primary-button {
-        background: linear-gradient(135deg, $accent, darken($accent, 12%));
+        background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -12%));
         color: #fff;
         box-shadow: 0 4px 14px rgba($accent, 0.28);
 

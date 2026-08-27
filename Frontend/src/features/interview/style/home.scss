@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // ── Design Tokens ─────────────────────────────────────────────────────────────
 $bg:        #0a0a0f;
 $bg2:       #111118;
@@ -413,7 +415,7 @@ $font:      'Plus Jakarta Sans', system-ui, sans-serif;
     align-items: center;
     gap: 0.5rem;
     padding: 0.8rem 2rem;
-    background: linear-gradient(135deg, $accent, darken($accent, 14%));
+    background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -14%));
     color: #fff;
     font-size: 0.9rem;
     font-weight: 800;
@@ -581,3 +583,17 @@ $font:      'Plus Jakarta Sans', system-ui, sans-serif;
 
     .he-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
+
+.he-overview {
+    width: 100%; display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid $border; border-bottom: 1px solid $border; background: $bg2;
+    > div { min-height: 118px; padding: 1.5rem 2rem; border-right: 1px solid $border; display: flex; flex-direction: column; justify-content: center; &:last-child { border-right: 0; } }
+    span, small { color: $text3; font-size: .68rem; }
+    strong { color: $text; font-size: 1.65rem; letter-spacing: -.04em; margin: .28rem 0; }
+}
+
+@media (max-width: 900px) {
+    .he-overview { grid-template-columns: repeat(2, 1fr); > div:nth-child(2) { border-right: 0; } > div:nth-child(-n+2) { border-bottom: 1px solid $border; } }
+}
+
+@media (max-width: 600px) { .he-overview > div { padding: 1.15rem; min-height: 100px; } }

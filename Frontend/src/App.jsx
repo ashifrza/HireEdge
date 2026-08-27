@@ -3,13 +3,18 @@ import { router } from "./app.routes.jsx"
 import { AuthProvider } from "./features/auth/auth.context.jsx"
 import { InterviewProvider } from "./features/interview/interview.context.jsx"
 import { Toaster } from "react-hot-toast"
+import { Suspense } from "react"
+import ErrorBoundary from "./components/ErrorBoundary"
 
 function App() {
   return (
-    <AuthProvider>
-      <InterviewProvider>
-        <RouterProvider router={router} />
-        <Toaster
+    <ErrorBoundary>
+      <AuthProvider>
+        <InterviewProvider>
+          <Suspense fallback={<main className='auth-loading' aria-label='Loading HireEdge'><div className='auth-spinner'/></main>}>
+            <RouterProvider router={router} />
+          </Suspense>
+          <Toaster
           position="top-right"
           toastOptions={{
             duration: 3500,
@@ -33,9 +38,10 @@ function App() {
               iconTheme: { primary: '#ff2d78', secondary: '#1c2230' },
             },
           }}
-        />
-      </InterviewProvider>
-    </AuthProvider>
+          />
+        </InterviewProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

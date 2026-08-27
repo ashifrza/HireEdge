@@ -20,9 +20,9 @@ const Login_Component = () => {
         try {
             await handleLogin({ email, password })
             toast.success('Welcome back!')
-            navigate('/')
-        } catch {
-            toast.error('Invalid email or password')
+            navigate('/dashboard')
+        } catch (error) {
+            toast.error(error.message)
         } finally {
             setSubmitting(false)
         }
@@ -52,7 +52,7 @@ const Login_Component = () => {
 
                 <div className='auth-card__header'>
                     <h1>Welcome back</h1>
-                    <p>Sign in to your account to continue</p>
+                    <p>Continue your interview practice and progress</p>
                 </div>
 
                 <form className='auth-form' onSubmit={handleSubmit}>

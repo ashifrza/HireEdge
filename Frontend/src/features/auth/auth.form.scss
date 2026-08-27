@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $bg-page:    #0d1117;
 $bg-card:    #161b22;
 $bg-input:   #1e2535;
@@ -187,7 +189,7 @@ $font-stack: 'Plus Jakarta Sans', 'DM Sans', system-ui, sans-serif;
     justify-content: center;
     padding: 0.8rem 1.5rem;
     margin-top: 0.25rem;
-    background: linear-gradient(135deg, $accent, darken($accent, 14%));
+    background: linear-gradient(135deg, $accent, color.adjust($accent, $lightness: -14%));
     color: #fff;
     font-size: 0.9rem;
     font-weight: 700;
