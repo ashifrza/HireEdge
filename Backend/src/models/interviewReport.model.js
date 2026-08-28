@@ -111,6 +111,11 @@ const interviewReportSchema = new mongoose.Schema(
     },
     reviewedQuestionKeys: [{ type: String }],
     completedPlanTasks: [{ type: String }],
+    // Cached structured resume data makes repeat PDF downloads instant and
+    // avoids charging the AI provider again for the same report.
+    atsResume: {
+      type: mongoose.Schema.Types.Mixed,
+    },
   },
   {
     timestamps: true,

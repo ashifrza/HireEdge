@@ -148,20 +148,27 @@ async function generateResumePdfController(req, res) {
       return res.status(404).json({ message: "Interview report not found." });
     }
 
-    const { resume, jobDescription, selfDescription } = interviewReport;
-    const pdfBuffer = await generateResumePdf({
+    const { resume, jobDescription, selfDescription, atsResume } = interviewReport;
+    const result = await generateResumePdf({
       resume,
       jobDescription,
       selfDescription,
+      atsResume,
     });
+
+    if (result.atsResume && !atsResume) {
+      interviewReport.atsResume = result.atsResume;
+      await interviewReport.save();
+    }
 
     res.set({
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename=resume_${interviewReportId}.pdf`,
-      "Content-Length": pdfBuffer.length,
+      "Content-Length": result.pdfBuffer.length,
+      "X-Resume-Mode": result.usedFallback ? "fallback" : "enhanced",
     });
 
-    res.end(pdfBuffer);
+    res.end(result.pdfBuffer);
   } catch (err) {
     console.error("generateResumePdfController error:", err.message);
     res

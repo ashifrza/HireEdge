@@ -38,9 +38,15 @@ export const generateResumePdf = async ({ interviewReportId }) => {
     null,
     {
       responseType: "blob",
+      // Resume generation includes an AI request and PDF rendering, so it needs
+      // a larger timeout than ordinary API calls.
+      timeout: 120000,
     },
   );
-  return response.data;
+  return {
+    blob: response.data,
+    mode: response.headers["x-resume-mode"] || "enhanced",
+  };
 };
 
 export const saveReportProgress = async (interviewId, progress) => {

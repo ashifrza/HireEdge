@@ -28,6 +28,7 @@ app.use(
       return callback(new Error(`CORS policy: origin ${origin} not allowed`));
     },
     credentials: true,
+    exposedHeaders: ["X-Resume-Mode"],
   }),
 );
 

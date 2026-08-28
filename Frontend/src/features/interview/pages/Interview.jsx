@@ -221,9 +221,17 @@ const DownloadBtn = ({ interviewId, getResumePdf }) => {
         setLoading(true)
         const t = toast.loading('Generating your ATS resume...')
         try {
-            await getResumePdf(interviewId)
-            toast.dismiss(t); toast.success('Resume downloaded!')
-        } catch { toast.dismiss(t); toast.error('Download failed. Try again.') }
+            const mode = await getResumePdf(interviewId)
+            toast.dismiss(t)
+            if (mode === 'fallback') {
+                toast('Basic ATS PDF downloaded. AI enhancement was unavailable, so review it before applying.', { icon: '⚠️', duration: 6000 })
+            } else {
+                toast.success('One-page ATS resume downloaded!')
+            }
+        } catch (error) {
+            toast.dismiss(t)
+            toast.error(error?.message || 'Download failed. Try again.')
+        }
         finally { setLoading(false) }
     }
 

@@ -66,22 +66,31 @@ export const useInterview = () => {
     }
 
     const getResumePdf = async (interviewReportId) => {
-        setLoading(true)
         try {
-            const response = await generateResumePdf({ interviewReportId })
-            const url = window.URL.createObjectURL(new Blob([response], { type: "application/pdf" }))
+            const { blob: pdfBlob, mode } = await generateResumePdf({ interviewReportId })
+
+            if (!(pdfBlob instanceof Blob) || pdfBlob.size === 0) {
+                throw new Error("The server returned an empty PDF. Please try again.")
+            }
+
+            const url = window.URL.createObjectURL(pdfBlob)
             const link = document.createElement("a")
             link.href = url
             link.setAttribute("download", `resume_${interviewReportId}.pdf`)
+            link.style.display = "none"
             document.body.appendChild(link)
             link.click()
-            document.body.removeChild(link)
-            window.URL.revokeObjectURL(url)
+
+            // Edge may not start reading the blob until after the click handler
+            // returns. Revoking it immediately can cancel the download.
+            window.setTimeout(() => {
+                link.remove()
+                window.URL.revokeObjectURL(url)
+            }, 60000)
+            return mode
         } catch (error) {
             console.error(error)
             throw error
-        } finally {
-            setLoading(false)
         }
     }
 

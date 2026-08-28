@@ -8,8 +8,21 @@ export const api = axios.create({
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const message = error.response?.data?.message
+  async (error) => {
+    let responseMessage = error.response?.data?.message;
+
+    // Download endpoints return blobs, including when the backend sends a JSON
+    // error. Decode that JSON so the UI can show the real failure reason.
+    if (!responseMessage && error.response?.data instanceof Blob) {
+      try {
+        const payload = JSON.parse(await error.response.data.text());
+        responseMessage = payload?.message;
+      } catch {
+        // The response was not JSON; use the normal fallback below.
+      }
+    }
+
+    const message = responseMessage
       || (error.code === "ECONNABORTED" ? "The request timed out. Please try again." : null)
       || "Something went wrong. Please try again.";
     const normalized = new Error(message);
