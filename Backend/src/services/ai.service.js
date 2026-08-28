@@ -463,8 +463,8 @@ CONTENT RULES:
 - Target exactly one A4 page; prioritize the most relevant and recent evidence.
 - Summary: 2 concise sentences, no first-person pronouns, no buzzword stuffing.
 - Skills: only evidenced skills; group them into at most 5 useful categories.
-- Experience: strongest 3-4 bullets per role, each under 22 words, beginning with an action verb.
-- Projects: at most 3, with 2-3 bullets each. Rewrite weak wording into strong engineering language without changing facts.
+- Experience: at most 3 recent roles with 3-4 bullets per role, each under 22 words and beginning with an action verb.
+- Projects: include the 2 strongest relevant projects with 2-3 bullets each. Rewrite weak wording into strong engineering language without changing facts.
 - Metrics may appear only if the candidate supplied those exact metrics.
 - Add job-description keywords only when candidate evidence supports them.
 - Use empty strings or empty arrays for missing information. Never output placeholders such as N/A, unknown, email@example.com, or "Your Name".`;
@@ -504,17 +504,17 @@ CONTENT RULES:
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: Arial, sans-serif;
-      font-size: 9.4px;
+      font-size: 9.5pt;
       color: #1a1a1a;
       background: white;
       line-height: 1.28;
     }
     .resume-header { text-align: center; margin-bottom: 5px; }
-    .resume-name { font-size: 20px; line-height: 1.05; font-weight: 700; letter-spacing: .2px; }
-    .resume-title { font-size: 10.5px; font-weight: 700; margin-top: 2px; }
-    .resume-contact { font-size: 8.5px; margin-top: 3px; overflow-wrap: anywhere; }
+    .resume-name { font-size: 20pt; line-height: 1.05; font-weight: 700; letter-spacing: .2px; }
+    .resume-title { font-size: 10.5pt; font-weight: 700; margin-top: 2px; }
+    .resume-contact { font-size: 8.5pt; margin-top: 3px; overflow-wrap: anywhere; }
     .resume-section { margin-top: 6px; break-inside: avoid; }
-    .resume-section h2 { font-size: 10px; line-height: 1.15; text-transform: uppercase; letter-spacing: .5px; border-bottom: .8px solid #222; padding-bottom: 1px; margin-bottom: 3px; }
+    .resume-section h2 { font-size: 10pt; line-height: 1.15; text-transform: uppercase; letter-spacing: .5px; border-bottom: .8px solid #222; padding-bottom: 1px; margin-bottom: 3px; }
     .resume-entry { margin-top: 3px; break-inside: avoid; }
     .resume-entry-title { font-weight: 700; }
     .resume-entry-meta { color: #333; font-style: italic; }
@@ -522,7 +522,7 @@ CONTENT RULES:
     .resume-skills-line { margin-top: 1px; }
     .resume-bullets { margin: 1px 0 0 14px; padding: 0; }
     .resume-bullets li { margin: 0 0 1px; padding-left: 1px; }
-    .resume-fallback { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 8.2px; line-height: 1.18; }
+    .resume-fallback { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 8pt; line-height: 1.18; }
     a { color: inherit; text-decoration: none; }
     p, li { orphans: 2; widows: 2; }
     .resume-document {
@@ -552,6 +552,8 @@ CONTENT RULES:
 
 function escapeHtml(value) {
   return String(value)
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\u00a0/g, " ")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -616,6 +618,7 @@ function renderStructuredResumeHtml(data) {
   if (skills) sections.push(`<section class="resume-section"><h2>Technical Skills</h2>${skills}</section>`);
 
   const experience = data.experience
+    .slice(0, 3)
     .filter((item) => compactParts([item.title, item.company, ...item.bullets]).length)
     .map((item) => {
       const heading = compactParts([item.title, item.company, item.dates]).join(" | ");
@@ -625,6 +628,7 @@ function renderStructuredResumeHtml(data) {
   if (experience) sections.push(`<section class="resume-section"><h2>Professional Experience</h2>${experience}</section>`);
 
   const projects = data.projects
+    .slice(0, 2)
     .filter((item) => compactParts([item.name, ...item.bullets]).length)
     .map((item) => {
       const heading = compactParts([item.name, compactParts(item.technologies).join(", "), item.link]).join(" | ");
