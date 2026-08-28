@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../auth/hooks/useAuth'
 import './navbar.scss'
+import Brand from './Brand'
 
 const Navbar = ({ showBack = false, backTo = '/dashboard', title = '' }) => {
     const { user, handleLogout } = useAuth()
@@ -25,10 +26,7 @@ const Navbar = ({ showBack = false, backTo = '/dashboard', title = '' }) => {
                         </button>
                     )}
                     <button className='site-nav__brand' onClick={() => navigate('/dashboard')}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                        </svg>
-                        HireEdge
+                        <Brand compact />
                     </button>
                     {title && <span className='site-nav__title'>/ {title}</span>}
                 </div>

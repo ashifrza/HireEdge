@@ -1,4 +1,4 @@
-$bg:         #0a0a0f;
+$bg:         #09090f;
 $border:     rgba(255,255,255,0.08);
 $text:       #f0f0f0;
 $muted:      #6b7280;
@@ -16,10 +16,10 @@ $font:       'Plus Jakarta Sans', system-ui, sans-serif;
     border-bottom: 1px solid $border;
 
     &__inner {
-        max-width: 1400px;
+        max-width: 1540px;
         margin: 0 auto;
         padding: 0 2rem;
-        height: 56px;
+        height: 72px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -68,7 +68,8 @@ $font:       'Plus Jakarta Sans', system-ui, sans-serif;
         letter-spacing: -0.01em;
         padding: 0;
 
-        svg { color: $accent; }
+        transition: transform .2s;
+        &:hover { transform: translateY(-1px); }
     }
 
     &__title {
@@ -88,9 +89,9 @@ $font:       'Plus Jakarta Sans', system-ui, sans-serif;
     }
 
     &__avatar {
-        width: 28px; height: 28px;
+        width: 34px; height: 34px;
         border-radius: 50%;
-        background: linear-gradient(135deg, $accent, #c41f5c);
+        background: linear-gradient(135deg, #8173ff, #ff4d9d);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -111,7 +112,7 @@ $font:       'Plus Jakarta Sans', system-ui, sans-serif;
         font-family: $font;
         font-weight: 500;
         padding: 0.35rem 0.75rem;
-        border-radius: 8px;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.15s;
 
@@ -126,3 +127,10 @@ $font:       'Plus Jakarta Sans', system-ui, sans-serif;
         &__title { display: none; }
     }
 }
+
+// Floating liquid-glass workspace navigation
+.site-nav{top:0;background:rgba(9,10,15,.62);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);border-bottom-color:rgba(255,255,255,.1);box-shadow:0 14px 45px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.07)}
+.site-nav__avatar{background:linear-gradient(180deg,#ff4d8d,#ff2d78 55%,#db004f);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 22px rgba(255,45,120,.2)}
+.site-nav__back,.site-nav__logout{background:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+
+.site-nav__title { border-left: 1px solid $border; padding-left: .75rem; }

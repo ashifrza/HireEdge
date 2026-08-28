@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import toast from 'react-hot-toast'
 import Navbar from '../../shared/Navbar'
+import Brand from '../../shared/Brand'
 import { getInterviewProgress } from '../services/interview.api.js'
 
 const fadeUp = {
@@ -82,27 +83,27 @@ const Home = () => {
     if (loading) return <LoadingScreen />
 
     return (
-        <div className='he-home'>
+        <div className='he-home' id='dashboard-top'>
             <Navbar />
 
             {/* ── Hero ── */}
             <section className='he-hero'>
                 <motion.div className='he-hero__inner' initial='hidden' animate='show' variants={{ show: { transition: { staggerChildren: 0.09 } } }}>
-                    <motion.div className='he-hero__pill' variants={fadeUp} custom={0}>
-                        <span className='he-live-dot'/>
-                        AI-Powered Interview Preparation
-                    </motion.div>
-                    <motion.h1 variants={fadeUp} custom={1}>
-                        Build Your <em>Winning</em><br/>Interview Strategy
-                    </motion.h1>
-                    <motion.p className='he-hero__sub' variants={fadeUp} custom={2}>
-                        Upload your resume, paste the job description — get a personalized prep plan, interview questions, and an ATS-ready resume in 30 seconds.
-                    </motion.p>
-                    <motion.div className='he-hero__chips' variants={fadeUp} custom={3}>
-                        {['Technical Questions', 'Behavioral Questions', 'Skill Gap Analysis', 'Prep Roadmap', 'AI Resume PDF'].map(c => (
-                            <span key={c} className='he-chip'>{c}</span>
-                        ))}
-                    </motion.div>
+                    <div className='he-hero__copy'>
+                        <motion.h1 variants={fadeUp} custom={1}>Let’s work on your<br/>next <em>application.</em></motion.h1>
+                        <motion.p className='he-hero__sub' variants={fadeUp} custom={2}>Add the role you are applying for and the resume you use today. We’ll show you what already works, what needs attention, and what to practise before the interview.</motion.p>
+                        <motion.div className='he-hero__steps' variants={fadeUp} custom={3}>
+                            <span><b>01</b> Add the role</span><i/><span><b>02</b> Add your resume</span><i/><span><b>03</b> Review the results</span>
+                        </motion.div>
+                    </div>
+                    <motion.aside className='he-hero-visual' variants={fadeUp} custom={2} aria-label='Application kit output preview'>
+                        <div className='he-hero-visual__bar'><span/><span/><span/><b>HireEdge analysis</b></div>
+                        <div className='he-hero-visual__body'>
+                            <div className='he-hero-visual__score'><span>87<small>%</small></span><div><b>Strong role match</b><p>12 supported keywords aligned</p></div></div>
+                            <div className='he-hero-visual__outputs'><span>One-page ATS resume <b>PDF</b></span><span>Interview questions <b>8</b></span><span>Improvement roadmap <b>7d</b></span></div>
+                            <div className='he-hero-visual__ready'><span>✓</span><div><b>Your application kit is ready</b><small>Built only from your real experience</small></div></div>
+                        </div>
+                    </motion.aside>
                 </motion.div>
             </section>
 
@@ -114,7 +115,8 @@ const Home = () => {
             </section>
 
             {/* ── Input Section ── */}
-            <section className='he-form-section'>
+            <section className='he-form-section' id='new-application'>
+                <div className='he-form-intro'><span>NEW APPLICATION</span><h2>Start with the job you want.</h2><p>Use the full job description for a more useful resume review and better practice questions.</p></div>
                 <motion.div className='he-form-card' initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, duration: 0.4 }}>
 
                     {/* Left */}
@@ -207,7 +209,7 @@ const Home = () => {
 
             {/* ── Reports Grid ── */}
             {reports.length > 0 && (
-                <section className='he-reports'>
+                <section className='he-reports' id='my-plans'>
                     <div className='he-reports__hd'>
                         <div>
                             <h2>My Interview Plans</h2>
@@ -251,7 +253,39 @@ const Home = () => {
             )}
 
             <footer className='he-foot'>
-                <span>Your interview data is private to your account</span>
+                <div className='he-foot__inner'>
+                    <div className='he-foot__about'>
+                        <a href='#dashboard-top' className='he-foot__brand' aria-label='Back to dashboard top'><Brand compact /></a>
+                        <p>Better resumes, focused practice, and clearer next steps for every application.</p>
+                        <span>Your interview data is private to your account.</span>
+                    </div>
+
+                    <nav className='he-foot__links' aria-label='Dashboard quick links'>
+                        <strong>Quick links</strong>
+                        <a href='#dashboard-top'>Overview</a>
+                        <a href='#new-application'>New application</a>
+                        {reports.length > 0 && <a href='#my-plans'>My interview plans</a>}
+                    </nav>
+
+                    <div className='he-foot__connect'>
+                        <strong>Connect</strong>
+                        <div className='he-foot__socials'>
+                            <a href='https://www.linkedin.com/in/ashifrza/' target='_blank' rel='noreferrer' aria-label='Ashif Rza on LinkedIn' title='LinkedIn'>
+                                <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M6.5 8.2V18M6.5 5.5v.1M10.5 18v-5.4c0-2.8 4.1-3 4.1 0V18M10.5 9.8V18' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round'/><rect x='3' y='3' width='18' height='18' rx='4' fill='none' stroke='currentColor' strokeWidth='1.6'/></svg>
+                            </a>
+                            <a href='https://github.com/ASHIFRZA18' target='_blank' rel='noreferrer' aria-label='Ashif Rza on GitHub' title='GitHub'>
+                                <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 3a9 9 0 0 0-2.85 17.54c.45.08.62-.2.62-.43v-1.68c-2.52.55-3.05-1.07-3.05-1.07-.41-1.05-1-1.33-1-1.33-.82-.56.06-.55.06-.55.91.07 1.39.94 1.39.94.8 1.38 2.11.98 2.63.75.08-.59.31-.98.57-1.21-2.01-.23-4.13-1-4.13-4.45 0-.99.35-1.79.93-2.42-.09-.23-.4-1.15.09-2.39 0 0 .76-.24 2.48.92A8.6 8.6 0 0 1 12 7.31c.77 0 1.53.1 2.26.31 1.72-1.16 2.48-.92 2.48-.92.49 1.24.18 2.16.09 2.39.58.63.93 1.43.93 2.42 0 3.46-2.12 4.21-4.14 4.44.33.28.61.83.61 1.68v2.48c0 .24.17.52.62.43A9 9 0 0 0 12 3Z' fill='currentColor'/></svg>
+                            </a>
+                            <a href='https://www.ashifrza.in/' target='_blank' rel='noreferrer' aria-label='Visit Ashif Rza portfolio' title='Portfolio'>
+                                <svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='12' r='9' fill='none' stroke='currentColor' strokeWidth='1.7'/><path d='M3.5 12h17M12 3c2.5 2.5 3.6 5.5 3.6 9s-1.1 6.5-3.6 9c-2.5-2.5-3.6-5.5-3.6-9S9.5 5.5 12 3Z' fill='none' stroke='currentColor' strokeWidth='1.5'/></svg>
+                            </a>
+                            <a href='mailto:ashifrza18@gmail.com' aria-label='Email Ashif Rza' title='Email'>
+                                <svg viewBox='0 0 24 24' aria-hidden='true'><rect x='3' y='5' width='18' height='14' rx='3' fill='none' stroke='currentColor' strokeWidth='1.7'/><path d='m5 8 7 5 7-5' fill='none' stroke='currentColor' strokeWidth='1.7' strokeLinecap='round' strokeLinejoin='round'/></svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div className='he-foot__bottom'><span>© {new Date().getFullYear()} HireEdge</span><span>Designed and built by Ashif Rza</span></div>
             </footer>
         </div>
     )

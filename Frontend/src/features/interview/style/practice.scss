@@ -26,3 +26,23 @@ $accent: #ff2d78; $panel: #151922; $line: rgba(255,255,255,.09); $muted: #89909f
 .practice-summary__stats { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; div { background:$panel;border:1px solid $line;border-radius:12px;padding:20px; } b,span { display:block;text-transform:capitalize; } span { color:$muted;font-size:.68rem;margin-top:7px; } }
 .practice-summary__actions { display:flex;justify-content:center;gap:12px;margin-top:35px; button { padding:13px 18px;border:0;border-radius:8px;background:$accent;color:white;font-weight:800;cursor:pointer; } button.secondary { background:$panel;border:1px solid $line; } }
 @media(max-width:700px){ .practice-options{grid-template-columns:1fr;} .practice-rubric{grid-template-columns:1fr 1fr;} .practice-feedback-grid{grid-template-columns:1fr;} .practice-setup__footer{align-items:flex-start;gap:16px;flex-direction:column;} .practice-composer__footer{flex-wrap:wrap;} .practice-composer__footer span{order:3;margin-left:0;width:100%;} .practice-summary__stats{grid-template-columns:1fr;} }
+
+// Premium practice room
+.practice-page { background: radial-gradient(circle at 50% 0,rgba(111,91,255,.11),transparent 28%),#09090f; }
+.practice-setup { max-width: 1080px; padding-top: 6.5rem; }
+.practice-setup h1 { font-size: clamp(3.3rem,6vw,6rem); line-height: .96; letter-spacing: -.07em; }
+.practice-setup h1 span { color: #9388ff; }
+.practice-kicker { color: #a69dff; }
+.practice-settings { border: 1px solid rgba(255,255,255,.09); border-radius: 1.4rem; background: linear-gradient(145deg,rgba(26,26,39,.7),rgba(13,13,21,.58)); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); }
+.practice-options button { border-radius: .95rem; background: rgba(5,5,10,.28); }.practice-options button.active { border-color: rgba(130,116,255,.5); background: rgba(130,116,255,.1); box-shadow: 0 0 0 3px rgba(130,116,255,.06); }
+.practice-setup__footer button,.practice-submit,.practice-evaluation__title button { border-radius: .9rem; background: linear-gradient(135deg,#887aff,#6657f2 58%,#c7438b); box-shadow: 0 14px 34px rgba(101,87,242,.25); }
+.practice-progress { top:72px; }.practice-progress span { background:linear-gradient(90deg,#7869ff,#ff4d9d); }
+.practice-room { max-width: 1080px; padding-top: 4rem; }
+.practice-question h1 { font-size: clamp(2.3rem,4.5vw,4.6rem); line-height: 1.06; letter-spacing: -.06em; }
+.practice-composer,.practice-evaluation { border-color: rgba(255,255,255,.1); border-radius: 1.35rem; background: linear-gradient(145deg,rgba(25,25,38,.72),rgba(13,13,21,.62)); box-shadow: 0 28px 80px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.05); }
+.practice-composer textarea { background: rgba(5,5,10,.28); border-radius: 1rem; border-color: rgba(255,255,255,.08); }
+.practice-rubric>div,.practice-feedback-grid article,.practice-outline,.practice-followup { border-radius: 1rem; background: rgba(255,255,255,.025); border-color: rgba(255,255,255,.08); }
+.practice-summary { min-height: calc(100vh - 72px); }.practice-summary h1 { font-size: clamp(3.2rem,6vw,6rem); }.practice-summary__score { border-color: rgba(130,116,255,.2); box-shadow: 0 0 70px rgba(130,116,255,.12); }.practice-summary__score strong { color:#9d94ff; }
+
+// Original HireEdge color system + liquid depth
+.practice-page{background:radial-gradient(circle at 50% 0,rgba(255,45,120,.09),transparent 28%),#090a0f}.practice-setup h1 span,.practice-kicker{color:#ff2d78}.practice-settings{background:linear-gradient(145deg,rgba(27,28,36,.7),rgba(12,13,18,.58));backdrop-filter:blur(24px) saturate(140%);-webkit-backdrop-filter:blur(24px) saturate(140%);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 28px 75px rgba(0,0,0,.24)}.practice-options button.active{border-color:rgba(255,45,120,.5);background:rgba(255,45,120,.08);box-shadow:0 0 0 3px rgba(255,45,120,.055)}.practice-setup__footer button,.practice-submit,.practice-evaluation__title button{background:linear-gradient(180deg,#ff478a,#ff2d78 55%,#e70055);box-shadow:0 14px 34px rgba(255,45,120,.24),inset 0 1px 0 rgba(255,255,255,.4)}.practice-progress span{background:#ff2d78}.practice-composer,.practice-evaluation{background:linear-gradient(145deg,rgba(27,28,36,.72),rgba(12,13,18,.62));box-shadow:0 28px 80px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.1)}.practice-summary__score{border-color:rgba(255,45,120,.2);box-shadow:0 0 70px rgba(255,45,120,.1)}.practice-summary__score strong{color:#ff5f98}

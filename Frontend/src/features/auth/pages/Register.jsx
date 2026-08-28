@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import "../auth.form.scss"
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
+import AuthShell from '../components/AuthShell.jsx'
 
 const Register = () => {
     const navigate = useNavigate()
@@ -36,26 +37,7 @@ const Register = () => {
     )
 
     return (
-        <main className='auth-page'>
-            <div className='auth-bg'/>
-            <motion.div
-                className='auth-card'
-                initial={{ opacity: 0, y: 32, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-                <div className='auth-card__brand'>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                    </svg>
-                    HireEdge
-                </div>
-
-                <div className='auth-card__header'>
-                    <h1>Create account</h1>
-                    <p>Start your AI-powered interview prep journey</p>
-                </div>
-
+        <AuthShell eyebrow='START FREE' title='Build your application kit.' description='Create one account for every tailored resume, match report, and practice session.'>
                 <form className='auth-form' onSubmit={handleSubmit}>
                     {[
                         { label: 'Username', id: 'username', type: 'text', placeholder: 'johndoe', setter: setUsername, autoComplete: 'username', delay: 0.1 },
@@ -94,8 +76,7 @@ const Register = () => {
                 <p className='auth-card__footer'>
                     Already have an account? <Link to="/login">Sign in</Link>
                 </p>
-            </motion.div>
-        </main>
+        </AuthShell>
     )
 }
 

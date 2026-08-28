@@ -12,24 +12,31 @@ html,
 body,
 #root {
     width: 100%;
-    background-color: #0d1117;
-    color: #e6edf3;
+    min-height: 100%;
+    background-color: #08080d;
+    color: #f7f5ff;
     font-family: 'Plus Jakarta Sans', 'DM Sans', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
+html { scroll-behavior: smooth; }
+body { min-height: 100vh; overflow-x: hidden; }
+button, input, textarea, select { font: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid #ff2d78; outline-offset: 3px; }
+
 /* Selection color */
 ::selection {
-    background-color: rgba(255, 45, 120, 0.2);
-    color: #e6edf3;
+    background-color: rgba(255, 45, 120, 0.26);
+    color: #ffffff;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #2a3348; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #3a4358; }
+::-webkit-scrollbar-thumb { background: #32303f; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #4c4762; }
 
 .highlight {
     color: #ff2d78;
@@ -37,9 +44,9 @@ body,
 
 .app-error {
     min-height: 100vh; padding: 2rem; display: grid; place-content: center; text-align: center;
-    background: #0d1117; color: #e6edf3;
+    background: #08080d; color: #f7f5ff;
     p { color: #ff2d78; font-size: .68rem; letter-spacing: .16em; font-weight: 800; }
     h1 { margin: .8rem 0; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -.05em; }
     span { color: #7d8590; }
-    button { margin: 1.5rem auto 0; padding: .8rem 1rem; border: 0; border-radius: 8px; background: #ff2d78; color: white; font-weight: 800; cursor: pointer; }
+    button { margin: 1.5rem auto 0; padding: .8rem 1rem; border: 0; border-radius: 12px; background: linear-gradient(180deg, #ff4b8c, #ff2d78); color: white; font-weight: 800; cursor: pointer; }
 }

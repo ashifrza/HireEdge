@@ -5,6 +5,7 @@ import "../auth.form.scss"
 import { useAuth } from '../hooks/useAuth'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
+import AuthShell from '../components/AuthShell.jsx'
 
 const Login_Component = () => {
     const { loading, handleLogin } = useAuth()
@@ -35,26 +36,7 @@ const Login_Component = () => {
     )
 
     return (
-        <main className='auth-page'>
-            <div className='auth-bg'/>
-            <motion.div
-                className='auth-card'
-                initial={{ opacity: 0, y: 32, scale: 0.97 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-                <div className='auth-card__brand'>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                    </svg>
-                    HireEdge
-                </div>
-
-                <div className='auth-card__header'>
-                    <h1>Welcome back</h1>
-                    <p>Continue your interview practice and progress</p>
-                </div>
-
+        <AuthShell eyebrow='WELCOME BACK' title='Continue building your edge.' description='Sign in to access your resumes, role matches, and interview plans.'>
                 <form className='auth-form' onSubmit={handleSubmit}>
                     <motion.div className='input-group' initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
                         <label htmlFor="email">Email address</label>
@@ -81,8 +63,7 @@ const Login_Component = () => {
                 <p className='auth-card__footer'>
                     Don't have an account? <Link to="/register">Create one</Link>
                 </p>
-            </motion.div>
-        </main>
+        </AuthShell>
     )
 }
 

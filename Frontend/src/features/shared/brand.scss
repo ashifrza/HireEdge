@@ -1,0 +1,47 @@
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: .72rem;
+  color: #f8f9ff;
+  line-height: 1;
+
+  &__mark {
+    width: 2.55rem;
+    height: 2.55rem;
+    display: grid;
+    place-items: center;
+    color: white;
+    border-radius: .85rem;
+    background: linear-gradient(145deg, #ff5793 0%, #ff2d78 48%, #c90047 100%);
+    box-shadow: 0 12px 32px rgba(255, 45, 120, .28), inset 0 1px 0 rgba(255,255,255,.52), inset 0 -2px 0 rgba(94,0,32,.28);
+    transform: rotate(-2deg);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: calc(.85rem - 1px);
+      border: 1px solid rgba(255,255,255,.22);
+      pointer-events: none;
+    }
+
+    svg { width: 1.65rem; height: 1.65rem; }
+  }
+
+  &__word {
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -.065em;
+    span { color: #ff2d78; }
+  }
+
+  &--compact {
+    gap: .55rem;
+    .brand-lockup__mark { width: 2rem; height: 2rem; border-radius: .65rem; }
+    .brand-lockup__mark svg { width: 1.3rem; height: 1.3rem; }
+    .brand-lockup__word { font-size: 1.15rem; }
+  }
+
+  &--light .brand-lockup__word { color: #151525; }
+}
