@@ -156,7 +156,7 @@ async function generateResumePdfController(req, res) {
       atsResume,
     });
 
-    if (result.atsResume && !atsResume) {
+    if (result.atsResume && result.atsResume.schemaVersion === 2 && atsResume?.schemaVersion !== 2) {
       interviewReport.atsResume = result.atsResume;
       await interviewReport.save();
     }

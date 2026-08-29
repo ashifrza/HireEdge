@@ -273,10 +273,10 @@ const Home = () => {
                             <a href='https://www.linkedin.com/in/ashifrza/' target='_blank' rel='noreferrer' aria-label='Ashif Rza on LinkedIn' title='LinkedIn'>
                                 <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M6.5 8.2V18M6.5 5.5v.1M10.5 18v-5.4c0-2.8 4.1-3 4.1 0V18M10.5 9.8V18' fill='none' stroke='currentColor' strokeWidth='1.8' strokeLinecap='round'/><rect x='3' y='3' width='18' height='18' rx='4' fill='none' stroke='currentColor' strokeWidth='1.6'/></svg>
                             </a>
-                            <a href='https://github.com/ASHIFRZA18' target='_blank' rel='noreferrer' aria-label='Ashif Rza on GitHub' title='GitHub'>
+                            <a href='https://github.com/' target='_blank' rel='noreferrer' aria-label='Ashif Rza on GitHub' title='GitHub'>
                                 <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 3a9 9 0 0 0-2.85 17.54c.45.08.62-.2.62-.43v-1.68c-2.52.55-3.05-1.07-3.05-1.07-.41-1.05-1-1.33-1-1.33-.82-.56.06-.55.06-.55.91.07 1.39.94 1.39.94.8 1.38 2.11.98 2.63.75.08-.59.31-.98.57-1.21-2.01-.23-4.13-1-4.13-4.45 0-.99.35-1.79.93-2.42-.09-.23-.4-1.15.09-2.39 0 0 .76-.24 2.48.92A8.6 8.6 0 0 1 12 7.31c.77 0 1.53.1 2.26.31 1.72-1.16 2.48-.92 2.48-.92.49 1.24.18 2.16.09 2.39.58.63.93 1.43.93 2.42 0 3.46-2.12 4.21-4.14 4.44.33.28.61.83.61 1.68v2.48c0 .24.17.52.62.43A9 9 0 0 0 12 3Z' fill='currentColor'/></svg>
                             </a>
-                            <a href='https://www.ashifrza.in/' target='_blank' rel='noreferrer' aria-label='Visit Ashif Rza portfolio' title='Portfolio'>
+                            <a href='https://www.google.in/' target='_blank' rel='noreferrer' aria-label='Visit Ashif Rza portfolio' title='Portfolio'>
                                 <svg viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='12' r='9' fill='none' stroke='currentColor' strokeWidth='1.7'/><path d='M3.5 12h17M12 3c2.5 2.5 3.6 5.5 3.6 9s-1.1 6.5-3.6 9c-2.5-2.5-3.6-5.5-3.6-9S9.5 5.5 12 3Z' fill='none' stroke='currentColor' strokeWidth='1.5'/></svg>
                             </a>
                             <a href='mailto:ashifrza18@gmail.com' aria-label='Email Ashif Rza' title='Email'>
