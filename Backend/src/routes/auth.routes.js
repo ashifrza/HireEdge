@@ -1,5 +1,6 @@
 const { Router } = require('express')
 const authController = require("../controllers/auth.controller")
+const passwordlessController = require("../controllers/passwordless.controller")
 const authMiddleware = require("../middlewares/auth.middleware")
 const { createRateLimit } = require("../middlewares/rateLimit.middleware")
 
@@ -9,6 +10,20 @@ const authRateLimit = createRateLimit({
     max: 30,
     message: "Too many authentication attempts. Please try again later.",
 })
+const otpRequestRateLimit = createRateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    message: "Too many verification codes requested. Please wait and try again.",
+})
+const otpVerifyRateLimit = createRateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 15,
+    message: "Too many verification attempts. Please wait and try again.",
+})
+
+authRouter.post("/otp/request", otpRequestRateLimit, passwordlessController.requestOtpController)
+authRouter.post("/otp/verify", otpVerifyRateLimit, passwordlessController.verifyOtpController)
+authRouter.post("/google", authRateLimit, passwordlessController.googleAuthController)
 
 /**
  * @route POST /api/auth/register

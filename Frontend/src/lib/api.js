@@ -24,6 +24,7 @@ api.interceptors.response.use(
 
     const message = responseMessage
       || (error.code === "ECONNABORTED" ? "The request timed out. Please try again." : null)
+      || (error.code === "ERR_NETWORK" ? "Cannot reach the HireEdge API. Make sure the backend is running and VITE_API_URL is correct." : null)
       || "Something went wrong. Please try again.";
     const normalized = new Error(message);
     normalized.status = error.response?.status;

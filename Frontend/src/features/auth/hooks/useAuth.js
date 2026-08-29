@@ -1,6 +1,6 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { AuthContext } from "../auth.context";
-import { login, register, logout } from "../services/auth.api";
+import { login, register, logout, verifyOtp, googleAuth } from "../services/auth.api";
 
 
 
@@ -43,5 +43,17 @@ export const useAuth = () => {
         }
     }
 
-    return { user, loading, handleRegister, handleLogin, handleLogout }
+    const handleOtpVerification = useCallback(async (payload) => {
+        const data = await verifyOtp(payload)
+        setUser(data.user)
+        return data
+    }, [setUser])
+
+    const handleGoogleAuth = useCallback(async (credential) => {
+        const data = await googleAuth(credential)
+        setUser(data.user)
+        return data
+    }, [setUser])
+
+    return { user, loading, handleRegister, handleLogin, handleLogout, handleOtpVerification, handleGoogleAuth }
 }

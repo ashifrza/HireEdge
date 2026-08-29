@@ -17,7 +17,28 @@ const userSchema = new mongoose.Schema({
 
   password: {
     type: String,
-    required: true,
+    default: null,
+  },
+
+  phone: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+  },
+
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+
+  emailVerified: { type: Boolean, default: false },
+  phoneVerified: { type: Boolean, default: false },
+  authProviders: {
+    type: [String],
+    enum: ["password", "email", "phone", "google"],
+    default: ["password"],
   },
 }, { timestamps: true });
 

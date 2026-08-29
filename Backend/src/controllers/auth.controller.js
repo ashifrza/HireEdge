@@ -68,7 +68,8 @@ async function registerUserController(req, res) {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
+        email: user.email?.endsWith("@phone.hireedge.local") ? null : user.email,
+        phone: user.phone || null,
       },
     });
   } catch (err) {
@@ -101,6 +102,12 @@ async function loginUserController(req, res) {
       });
     }
 
+    if (!user.password) {
+      return res.status(400).json({
+        message: "This account uses a verification code or Google sign-in.",
+      });
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
@@ -122,7 +129,8 @@ async function loginUserController(req, res) {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
+        email: user.email?.endsWith("@phone.hireedge.local") ? null : user.email,
+        phone: user.phone || null,
       },
     });
   } catch (err) {
@@ -173,7 +181,8 @@ async function getMeController(req, res) {
       user: {
         id: user._id,
         username: user.username,
-        email: user.email,
+        email: user.email?.endsWith("@phone.hireedge.local") ? null : user.email,
+        phone: user.phone || null,
       },
     });
   } catch (err) {

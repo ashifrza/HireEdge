@@ -34,7 +34,7 @@ Whether you're a fresher entering the job market or an experienced professional 
 - 📈 **Persistent Progress** — Saved review state, completed roadmap tasks, sessions, and coaching scores
 - 🧠 **Answer Coaching** — Relevance, accuracy, structure, evidence, and communication rubrics
 - 📊 **Performance Reports** — Detailed feedback and scoring after every session
-- 🔐 **Secure Authentication** — JWT-based login/register with token blacklisting
+- 🔐 **Secure Authentication** — Google sign-in, email OTP, India-only SMS OTP, and legacy password access
 - 👤 **User Dashboard** — Track your interview history and progress
 - 📱 **Responsive Design** — Works seamlessly on desktop and mobile
 - ⚡ **Fast & Modern UI** — Built with React + Vite for blazing-fast performance
@@ -49,7 +49,7 @@ Whether you're a fresher entering the job market or an experienced professional 
 | Backend | Node.js, Express.js |
 | Database | MongoDB (Mongoose) |
 | AI Engine | OpenAI Responses API · Groq automatic fallback · Structured Outputs |
-| Auth | JWT (JSON Web Tokens) |
+| Auth | Google Identity Services, Twilio Verify, email OTP, JWT cookies |
 | Styling | SCSS Modules |
 
 ---
@@ -122,9 +122,29 @@ OPENAI_MODEL=gpt-5.4-nano
 GROQ_API_KEY=your_groq_fallback_key_here
 GROQ_MODEL=openai/gpt-oss-20b
 FRONTEND_URL=http://localhost:5173
+
+# Passwordless authentication
+OTP_SECRET=another_long_random_secret
+GOOGLE_CLIENT_ID=your_web_client_id.apps.googleusercontent.com
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_VERIFY_SERVICE_SID=VAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=you@example.com
+SMTP_PASS=your_email_app_password
+SMTP_FROM="HireEdge <you@example.com>"
 ```
 
 Keep `OPENAI_API_KEY` in `Backend/.env` only. Never add it to the frontend, prefix it with `VITE_`, commit it to Git, or paste it into a public issue.
+
+Passwordless provider setup:
+
+1. Create a Google **Web application** OAuth client, add `http://localhost:5173` and your production frontend URL as authorized JavaScript origins, then use the same client ID in both env files.
+2. Create a Twilio Verify Service, enable SMS delivery to India, and copy the Account SID, auth token, and Verify Service SID to the backend env.
+3. Add SMTP credentials for an email account that can send verification mail. For Gmail, use an App Password rather than your normal account password.
+4. Restart both local servers after env changes. In production, add the same variables to the hosting dashboards and redeploy both services.
 
 Start the backend server:
 
@@ -151,6 +171,7 @@ Create a `.env` file inside `Frontend/`:
 
 ```env
 VITE_API_URL=http://localhost:3000
+VITE_GOOGLE_CLIENT_ID=your_web_client_id.apps.googleusercontent.com
 ```
 
 Start the frontend:
@@ -171,6 +192,9 @@ Visit: **http://localhost:5173** 🎉
 |--------|----------|-------------|
 | POST | `/register` | Register a new user |
 | POST | `/login` | Login user, returns JWT |
+| POST | `/otp/request` | Send an email or India SMS verification code |
+| POST | `/otp/verify` | Verify a six-digit code and sign in/create account |
+| POST | `/google` | Verify a Google ID token and sign in/create account |
 | POST | `/logout` | Logout & blacklist token |
 | GET | `/profile` | Get user profile (protected) |
 | PUT | `/profile` | Update user profile (protected) |

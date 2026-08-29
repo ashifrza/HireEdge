@@ -28,3 +28,18 @@ export async function getMe() {
   const response = await api.get("/api/auth/get-me");
   return response.data;
 }
+
+export async function requestOtp({ channel, value }) {
+  const response = await api.post("/api/auth/otp/request", { channel, value });
+  return response.data;
+}
+
+export async function verifyOtp({ channel, value, code }) {
+  const response = await api.post("/api/auth/otp/verify", { channel, value, code });
+  return response.data;
+}
+
+export async function googleAuth(credential) {
+  const response = await api.post("/api/auth/google", { credential });
+  return response.data;
+}
