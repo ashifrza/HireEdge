@@ -112,7 +112,7 @@ const PasswordlessAuth = () => {
       <div ref={googleRef} className={`auth-google${busy ? ' auth-google--busy' : ''}`}>
         {!googleClientId && <span>Google sign-in needs configuration</span>}
       </div>
-      <div className='auth-divider'><span>or continue with a code</span></div>
+      <div className='auth-divider'><span>or continue with Google</span></div>
 
       <div className='auth-methods' role='tablist' aria-label='Verification method'>
         <button type='button' role='tab' aria-selected={channel === 'email'} className={channel === 'email' ? 'active' : ''} onClick={() => changeChannel('email')}>Email</button>

@@ -64,7 +64,7 @@ const Landing = () => (
     </section>
 
     <section className='landing-cta'><div className='landing-cta__orb'/><p>READY WHEN YOU ARE</p><h2>Bring the job post.<br/>Leave with a <span>better application.</span></h2><Link className='landing-button landing-button--hero' to='/register'>Start with my resume <Arrow /></Link><small>No credit card · Your data stays private</small></section>
-    <footer className='landing-footer'><Brand compact/><p>© {new Date().getFullYear()} HireEdge. Built for better interviews.</p><div><Link to='/login'>Sign in</Link><a href='#how-it-works'>How it works</a></div></footer>
+    <footer className='landing-footer'><Brand compact/><p>© {new Date().getFullYear()} HireEdge. Built for better interviews.</p><div><Link to='/login'>Sign in</Link><a href='/privacy/'>Privacy Policy</a><a href='#how-it-works'>How it works</a></div></footer>
   </main>
 )
 

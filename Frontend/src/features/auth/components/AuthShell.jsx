@@ -24,6 +24,7 @@ const AuthShell = ({ children, eyebrow, title, description }) => (
       <Link to='/' className='auth-card__mobile-brand'><Brand compact /></Link>
       <div className='auth-card__header'><span>{eyebrow}</span><h1>{title}</h1><p>{description}</p></div>
       {children}
+      <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '.8rem', lineHeight: 1.6 }}>Read how HireEdge handles your information in our <a href='/privacy/' style={{ textDecoration: 'underline' }}>Privacy Policy</a>.</p>
     </motion.section>
   </main>
 )
