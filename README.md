@@ -123,20 +123,6 @@ GROQ_API_KEY=your_groq_fallback_key_here
 GROQ_MODEL=openai/gpt-oss-20b
 FRONTEND_URL=http://localhost:5173
 
-# Passwordless authentication
-OTP_SECRET=another_long_random_secret
-GOOGLE_CLIENT_ID=your_web_client_id.apps.googleusercontent.com
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_VERIFY_SERVICE_SID=VAxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=465
-SMTP_SECURE=true
-SMTP_USER=you@example.com
-SMTP_PASS=your_email_app_password
-SMTP_FROM="HireEdge <you@example.com>"
-```
-
 Keep `OPENAI_API_KEY` in `Backend/.env` only. Never add it to the frontend, prefix it with `VITE_`, commit it to Git, or paste it into a public issue.
 
 Passwordless provider setup:
